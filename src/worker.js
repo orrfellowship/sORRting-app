@@ -1,4 +1,4 @@
-self.importScripts('http://underscorejs.org/underscore-min.js');
+self.importScripts('https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/underscore-min.js');
 var Schedule = require('./schedule');
 
 self.onmessage = function (msg) {
