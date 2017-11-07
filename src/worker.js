@@ -76,7 +76,8 @@ function calculateMaxScore(company, candidates) {
 
   for (var i=0; i < company.preferences.length; i++) {
     if (_.findWhere(candidates, {name: company.preferences[i]})) {
-      maxScore += (15 - i);
+      // Fixme: might not always want this to be out of 20
+      maxScore += (20 - i);
       counter++;
     }
     if (counter == 8) break;
@@ -89,7 +90,8 @@ function calculateScore(company, candidates) {
   for (var i=0; i < candidates.length; i++) {
     var index = _.indexOf(company.preferences, candidates[i]);
     if (index >= 0) {
-      score += (15 - index);
+      // Fixme: might not always want this to be out of 20
+      score += (20 - index);
     }
   }
   return score;

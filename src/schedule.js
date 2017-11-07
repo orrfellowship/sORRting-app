@@ -117,7 +117,8 @@ Schedule.prototype.score = function(){
 
       var candidate = self.schedule[company][slot];
       if (_.contains(preferences, candidate)) {
-        companyScore += 15 - _.indexOf(preferences, candidate);
+        // Fixme: might not always want this to be out of 20
+        companyScore += 20 - _.indexOf(preferences, candidate);
       }
     }
     score += companyScore;
