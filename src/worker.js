@@ -25,7 +25,14 @@ function main({iterations, companies, candidates, slots, candidate_slots}) {
 
   _.each(companies, function(company) {
     company.maxScore = calculateMaxScore(company, candidates);
+    company = determineDecemberGrad(company);
   });
+  _.each(candidates, function(candidate) {
+    candidate.schedule = new Array(slots);
+    candidate = determineDecemberGrad(candidate);
+  })
+  console.log('candidate[0] -- ', candidates[0]);
+  console.log('company[0] - ', companies[0]);
 
   for (var i=0; i < iterations; i++) {
     var schedule = new Schedule(candidates, companies, slots, candidate_slots);
@@ -107,4 +114,35 @@ function countCandidateInterviews(schedule, candidates, companies, slots) {
     }
   }
   return candidates;
+}
+
+function determineDecemberGrad(object) {
+  if (isDecemberGrad(object.name)) {
+    object.decGrad = true;
+  } else {
+    object.decGrad = false;
+  }
+  object.name = trimName(object.name);
+  return object;
+}
+
+function isDecemberGrad(name) {
+  return indexOf(name, '?') !== -1;
+}
+
+function trimName(name) {
+  var pos = indexOf(name, '?');
+  if (pos !== -1) {
+    return name.slice(0, pos);
+  }
+  return name;
+}
+
+function indexOf(str, findChar) {
+  for (var i=0; i < str.length; i++) {
+    if (str[i] === findChar) {
+      return i;
+    }
+  }
+  return -1;
 }

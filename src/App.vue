@@ -2,7 +2,7 @@
   <div id="app">
     <HelpContainer
     <img src="./assets/OrrFellowship.png" width="300">
-    <h1>Welcome to the Orr Fellowship Scheduler</h1>
+    <h1>Welcome to the SchedulORR</h1>
     <FileInput item="preferences" @set-data="setData"></FileInput>
     <FileInput item="candidates" @set-data="setData"></FileInput>
     <div>
@@ -55,7 +55,11 @@ export default {
       else {
         // Validate Candidates File
         if (!this.data.companies[0].name || !_.isArray(this.data.companies[0].preferences)) this.validation_msg = "Make sure your input files are correct - company preferences should be company, pref1, pref2, ...";
-        else if (this.data.candidates.length != 2*this.data.companies.length) this.validation_msg = "Make sure your input files are correct - there should be twice as many candidates as companies.";
+        else if (this.data.candidates.length != 2*this.data.companies.length) {
+          this.validation_msg = "Make sure your input files are correct - there should be twice as many candidates as companies.";
+          console.log('candidates length -- ', this.data.candidates.length);
+          console.log('companies length -- ', this.data.companies.length);
+        }
       }
 
       return _.isEmpty(this.validation_msg);
