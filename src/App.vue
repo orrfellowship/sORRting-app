@@ -86,6 +86,7 @@ export default {
         var data = JSON.parse(dec.decode(msg.data.aBuf));
 
         self.results.unshift(data);
+        console.log('data returned -- ', data);
       }
     },
     toggleHelp() {

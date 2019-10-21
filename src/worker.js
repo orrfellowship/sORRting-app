@@ -11,6 +11,7 @@ self.onmessage = function (msg) {
     case 'populate':
       var dec = new TextDecoder();
       var data = JSON.parse(dec.decode(msg.data.aBuf));
+      console.log('new data returned -- ', data);
       populateCandidates(data);
       break;
     default:
@@ -31,11 +32,12 @@ function main({iterations, companies, candidates, slots, candidate_slots}) {
     candidate.schedule = new Array(slots);
     candidate = determineDecemberGrad(candidate);
   })
-  console.log('candidate[0] -- ', candidates[0]);
-  console.log('company[0] - ', companies[0]);
+  // console.log('candidate[0] -- ', candidates[0]);
+  // console.log('company[0] - ', companies[0]);
 
   for (var i=0; i < iterations; i++) {
     var schedule = new Schedule(candidates, companies, slots, candidate_slots);
+    // console.log('candidate schedule -- ', schedule.candidates[0].schedule);
     var data = _.map(schedule.schedule, function(row, i) {
       return {company: companies[i].name, interviews: row, maxScore: companies[i].maxScore, score: calculateScore(companies[i], row)};
     });
@@ -45,16 +47,24 @@ function main({iterations, companies, candidates, slots, candidate_slots}) {
       i=0;
       maxScore = score;
       var enc = new TextEncoder("utf-8");
-      var arrBuf = enc.encode(JSON.stringify({score: score, data: data, candidates: schedule.candidates, schedule: schedule.schedule})).buffer;
+      var arrBuf = enc.encode(JSON.stringify({score: score, data: data, candidates: schedule.candidates, companies: schedule.companies, schedule: schedule.schedule})).buffer;
       self.postMessage({aTopic: 'newMax', aBuf: arrBuf}, [arrBuf]);
       bestSchedule = schedule;
     }
+    // break;
   }
 
   close();
 }
 
-function populateCandidates({iterations, companies, candidates, slots, candidate_slots, schedule}) {
+function populateCandidates({iterations, companies, candidates, slots, candidate_slots, schedule, newCompanies, newCandidates}) {
+  console.log('schedule -- ', schedule);
+  console.log('companies -- ', companies);
+  console.log('candidates -- ', candidates);
+  console.log('newCandidates -- ', newCandidates);
+  console.log('newCompanies -- ', newCompanies);
+  candidates = newCandidates;
+  companies = newCompanies;
   candidates = countCandidateInterviews(schedule, candidates, companies, slots);
   var bestSchedule = new Schedule(candidates, companies, slots, candidate_slots, schedule);
   bestSchedule.populateCandidates();

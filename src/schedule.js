@@ -18,6 +18,9 @@ function Schedule(candidates, companies, slots, candidate_slots, schedule) {
     schedule[i] = new Array(slots);
   }
 
+  // console.log('candidates -- ', candidates);
+  // console.log('companies -- ', companies);
+
   resetCounters(candidates)
 
   // create randomized list of indexes we can use to get a random company
@@ -34,12 +37,15 @@ function Schedule(candidates, companies, slots, candidate_slots, schedule) {
 
     // Shuffle the company indexes again
     companyIndexes = _.shuffle(companyIndexes);
+    // console.log('companyIndexes -- ', companyIndexes);
 
     // Loop through the randomized companies
     for (var scheduleIndex=0; scheduleIndex < companies.length; scheduleIndex++) {
 
       var companyIndex = companyIndexes[scheduleIndex];
+      // console.log('companyIndex -- ', companyIndex);
       var company = companies[companyIndex];
+      // console.log('company -- ', company);
 
       // Get the preference list for current company
       var preferences = company.preferences;
@@ -63,15 +69,52 @@ function Schedule(candidates, companies, slots, candidate_slots, schedule) {
 
             // Verify current candidate has < max interviews
             if (candidate.count < candidate_slots) {
+              // if (candidate.name === 'Alex Antonetti') {
+              //   console.log('company -- ', company.name);
+              //   console.log('candidate schedule -- ', candidate.schedule);
+              // }
 
-              // Verify current candidate is not already scheduled for that timeslot
-              if (isValidAssignment(schedule, companyIndex, slotIndex, candidate.name)) {
-                schedule[companyIndex][slotIndex] = candidate.name;
-                candidate.count++;
+              // Verify only companies that want a december grad get one
+              if (candidate.decGrad && company.decGrad) {
+                // Verify current candidate is not already scheduled for that timeslot
+                if (isValidAssignment(schedule, companyIndex, slotIndex, candidate, company.name)) {
+                  // console.log('slot index -- ', slotIndex);
+                  
+                  schedule[companyIndex][slotIndex] = candidate.name;
+                  candidate.count++;
+                  candidate.schedule[slotIndex] = company.name;
+                  // console.log('schedule array -- ', schedule[companyIndex]);
+                  // console.log('candidate schedule -- ', candidate.schedule);
 
-                finished = false;
-                breakout = true;
-                break;
+                  finished = false;
+                  breakout = true;
+                  break;
+                }
+              } else if (candidate.decGrad && !company.decGrad) {
+                // alert that they got a december Grad?
+
+                // Verify current candidate is not already scheduled for that timeslot
+                if (isValidAssignment(schedule, companyIndex, slotIndex, candidate, company.name)) {
+                  schedule[companyIndex][slotIndex] = candidate.name;
+                  candidate.count++;
+                  candidate.schedule[slotIndex] = company.name;
+
+                  finished = false;
+                  breakout = true;
+                  break;
+                }
+              } else {
+                
+                // Verify current candidate is not already scheduled for that timeslot
+                if (isValidAssignment(schedule, companyIndex, slotIndex, candidate, company.name)) {
+                  schedule[companyIndex][slotIndex] = candidate.name;
+                  candidate.count++;
+                  candidate.schedule[slotIndex] = company.name;
+
+                  finished = false;
+                  breakout = true;
+                  break;
+                }
               }
             }
           }
@@ -87,11 +130,12 @@ function Schedule(candidates, companies, slots, candidate_slots, schedule) {
   self.schedule = schedule;
 }
 
-function isValidAssignment(schedule, companyIndex, slotIndex, name) {
-  if (_.contains(schedule[companyIndex], name)) return false;
+function isValidAssignment(schedule, companyIndex, slotIndex, candidate, companyName) {
+  if (_.contains(schedule[companyIndex], candidate.name)) return false;
+  if (_.contains(candidate.schedule, companyName)) return false;
 
   for (var i=0; i<schedule.length; i++) {
-    if (schedule[i][slotIndex] === name) return false;
+    if (schedule[i][slotIndex] === candidate.name) return false;
   }
 
   return true;
@@ -129,6 +173,8 @@ Schedule.prototype.score = function(){
 
 Schedule.prototype.populateCandidates = function(){
   var self = this;
+  console.log('candidates[0].schedule -- ', self.candidates[0].schedule);
+  console.log('companies -- ', self.companies);
 
   var finished = false;
 
@@ -145,6 +191,7 @@ Schedule.prototype.populateCandidates = function(){
         remaining.push(candidate);
       }
     });
+    console.log('remaining -- ', remaining);
 
     var schedule = JSON.parse(JSON.stringify(self.schedule));
 
@@ -154,6 +201,7 @@ Schedule.prototype.populateCandidates = function(){
     for (var scheduleIndex=0; scheduleIndex < self.companies.length; scheduleIndex++) {
 
       var companyIndex = companyIndexes[scheduleIndex];
+      var company = self.companies[companyIndex];
 
       // Loop through the indexes in order
       for (var slotIndex = 0; slotIndex < self.slots; slotIndex++) {
@@ -165,14 +213,31 @@ Schedule.prototype.populateCandidates = function(){
           var count = remaining.length;
           for (var index=0; index < count; index++) {
             var candidate = remaining[index];
-            if (isValidAssignment(schedule, companyIndex, slotIndex, candidate.name)) {
-              schedule[companyIndex][slotIndex] = candidate.name;
-              remaining.splice(index, 1);
-              break;
+            // console.log('candidateName -- ', candidate.name);
+            // console.log('candidate schedule -- ', candidate.schedule); 
+            
+            if (candidate.decGrad && company.decGrad) {
+              if (isValidAssignment(schedule, companyIndex, slotIndex, candidate, company.name)) {
+                schedule[companyIndex][slotIndex] = candidate.name;
+                candidate.schedule[slotIndex] = company.name;
+                // candidate.count++;
+                remaining.splice(index, 1);
+                break;
+              }
+            } else {
+              if (isValidAssignment(schedule, companyIndex, slotIndex, candidate, company.name)) {
+                // console.log('candidate -- ', candidate);
+                schedule[companyIndex][slotIndex] = candidate.name;
+                candidate.schedule[slotIndex] = company.name;
+                // candidate.count++;
+                remaining.splice(index, 1);
+                break;
+              }
             }
           }
+          console.log('spot still open? -- ', _.isEmpty(schedule[companyIndex][slotIndex]));
           if (index === count) {
-  					finished = false;
+  				  finished = false;
   				}
         }
       }
