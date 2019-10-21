@@ -104,7 +104,16 @@ export default {
         csvContent += ["Candidate", "Interview Count", "Slot 1", "Slot 2", "Slot 3", "Slot 4", "Slot 5", "Slot 6", "Slot 7", "Slot 8"].join(",");
         csvContent += "\n";
         _.each(data.candidates, function(candidate, index){
-          var output = [candidate.name, candidate.count, ...candidate.schedule];
+          var interviewSchedule = new Array(8);
+          _.each(data.data, function(row, index) {
+            for (var i=0; i < row.interviews.length; i++) {
+              if (row.interviews[i] === candidate.name) {
+                interviewSchedule[i] = row.company;
+              }
+            }
+          })
+
+          var output = [candidate.name, candidate.count, ...interviewSchedule];
 
           output = _.map(output, function(a) {
             return a ? '"' + a + '"' : "";
