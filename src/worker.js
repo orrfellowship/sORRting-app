@@ -11,7 +11,7 @@ self.onmessage = function (msg) {
     case 'populate':
       var dec = new TextDecoder();
       var data = JSON.parse(dec.decode(msg.data.aBuf));
-      console.log('new data returned -- ', data);
+      // console.log('new data returned -- ', data);
       populateCandidates(data);
       break;
     default:
@@ -58,11 +58,11 @@ function main({iterations, companies, candidates, slots, candidate_slots}) {
 }
 
 function populateCandidates({iterations, companies, candidates, slots, candidate_slots, schedule, newCompanies, newCandidates}) {
-  console.log('schedule -- ', schedule);
-  console.log('companies -- ', companies);
-  console.log('candidates -- ', candidates);
-  console.log('newCandidates -- ', newCandidates);
-  console.log('newCompanies -- ', newCompanies);
+  // console.log('schedule -- ', schedule);
+  // console.log('companies -- ', companies);
+  // console.log('candidates -- ', candidates);
+  // console.log('newCandidates -- ', newCandidates);
+  // console.log('newCompanies -- ', newCompanies);
   candidates = newCandidates;
   companies = newCompanies;
   candidates = countCandidateInterviews(schedule, candidates, companies, slots);

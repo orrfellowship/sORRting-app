@@ -92,6 +92,7 @@ function Schedule(candidates, companies, slots, candidate_slots, schedule) {
                 }
               } else if (candidate.decGrad && !company.decGrad) {
                 // alert that they got a december Grad?
+                // this shouldn't reach this state after manual cleansing
 
                 // Verify current candidate is not already scheduled for that timeslot
                 if (isValidAssignment(schedule, companyIndex, slotIndex, candidate, company.name)) {
@@ -104,7 +105,6 @@ function Schedule(candidates, companies, slots, candidate_slots, schedule) {
                   break;
                 }
               } else {
-                
                 // Verify current candidate is not already scheduled for that timeslot
                 if (isValidAssignment(schedule, companyIndex, slotIndex, candidate, company.name)) {
                   schedule[companyIndex][slotIndex] = candidate.name;
@@ -173,8 +173,8 @@ Schedule.prototype.score = function(){
 
 Schedule.prototype.populateCandidates = function(){
   var self = this;
-  console.log('candidates[0].schedule -- ', self.candidates[0].schedule);
-  console.log('companies -- ', self.companies);
+  // console.log('candidates[0].schedule -- ', self.candidates[0].schedule);
+  // console.log('companies -- ', self.companies);
 
   var finished = false;
 
@@ -191,7 +191,7 @@ Schedule.prototype.populateCandidates = function(){
         remaining.push(candidate);
       }
     });
-    console.log('remaining -- ', remaining);
+    // console.log('remaining -- ', remaining);
 
     var schedule = JSON.parse(JSON.stringify(self.schedule));
 
