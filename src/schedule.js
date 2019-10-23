@@ -1,4 +1,5 @@
 function Schedule(candidates, companies, slots, candidate_slots, schedule) {
+//   debugger;
   var self = this;
 
   self.candidates = candidates;
@@ -21,7 +22,7 @@ function Schedule(candidates, companies, slots, candidate_slots, schedule) {
   // console.log('candidates -- ', candidates);
   // console.log('companies -- ', companies);
 
-  resetCounters(candidates)
+//   candidates = reset(candidates);
 
   // create randomized list of indexes we can use to get a random company
   var companyIndexes = _.shuffle(_.range(companies.length));
@@ -30,9 +31,10 @@ function Schedule(candidates, companies, slots, candidate_slots, schedule) {
 
   // While not finished, let's loop
   var finished = false;
-  var breakout = false
+  var breakout = false;
+//   debugger;
   while(!finished) {
-
+  
     finished = true;
 
     // Shuffle the company indexes again
@@ -45,7 +47,7 @@ function Schedule(candidates, companies, slots, candidate_slots, schedule) {
       var companyIndex = companyIndexes[scheduleIndex];
       // console.log('companyIndex -- ', companyIndex);
       var company = companies[companyIndex];
-      // console.log('company -- ', company);
+      // console.log('company -- ', JSON.stringify(company));
 
       // Get the preference list for current company
       var preferences = company.preferences;
@@ -65,6 +67,7 @@ function Schedule(candidates, companies, slots, candidate_slots, schedule) {
           for (var counter = 0; counter < preferences.length; counter++) {
             // Verify current candidate has been given an interview
             var candidate = _.findWhere(candidates, { name: preferences[counter] });
+            // console.log('candidate -- ', JSON.stringify(candidate));
             if (!candidate) continue;
 
             // Verify current candidate has < max interviews
@@ -79,7 +82,6 @@ function Schedule(candidates, companies, slots, candidate_slots, schedule) {
                 // Verify current candidate is not already scheduled for that timeslot
                 if (isValidAssignment(schedule, companyIndex, slotIndex, candidate, company.name)) {
                   // console.log('slot index -- ', slotIndex);
-                  
                   schedule[companyIndex][slotIndex] = candidate.name;
                   candidate.count++;
                   candidate.schedule[slotIndex] = company.name;
@@ -141,10 +143,14 @@ function isValidAssignment(schedule, companyIndex, slotIndex, candidate, company
   return true;
 }
 
-function resetCounters(candidates) {
+function reset(candidates) {
   _.each(candidates, function(candidate) {
     candidate.count = 0;
+    _.each(candidate.schedule, function(slot) {
+      slot = null;
+    })
   });
+  return candidates;
 }
 
 Schedule.prototype = {};
@@ -155,10 +161,11 @@ Schedule.prototype.score = function(){
   var score = 0;
   for (var company = 0; company < self.companies.length; company++) {
     var companyScore = 0;
-    for (var slot = 0; slot < self.slots; slot++) {
-      var current = self.companies[company];
-      var preferences = current.preferences;
+    var current = self.companies[company];
+    var preferences = current.preferences;
+//     debugger;
 
+    for (var slot = 0; slot < self.slots; slot++) {
       var candidate = self.schedule[company][slot];
       if (_.contains(preferences, candidate)) {
         // Fixme: might not always want this to be out of 20
@@ -168,7 +175,7 @@ Schedule.prototype.score = function(){
     score += companyScore;
   }
 
-	return score;
+  return score;
 };
 
 Schedule.prototype.populateCandidates = function(){

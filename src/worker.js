@@ -36,13 +36,22 @@ function main({iterations, companies, candidates, slots, candidate_slots}) {
   // console.log('company[0] - ', companies[0]);
 
   for (var i=0; i < iterations; i++) {
+    _.each(candidates, function(candidate) {
+      candidate.count = 0;
+      for (var index=0; index<candidate.schedule.length; index++) {
+        candidate.schedule[index] = null;
+      }
+    });
     var schedule = new Schedule(candidates, companies, slots, candidate_slots);
     // console.log('candidate schedule -- ', schedule.candidates[0].schedule);
     var data = _.map(schedule.schedule, function(row, i) {
       return {company: companies[i].name, interviews: row, maxScore: companies[i].maxScore, score: calculateScore(companies[i], row)};
     });
     var score = schedule.score();
+//     debugger;
     self.postMessage(i+1);
+//     console.log('schedule score -- ', score);
+//     console.log('schedule -- ', schedule.schedule);
     if (score > maxScore) {
       i=0;
       maxScore = score;
