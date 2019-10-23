@@ -114,13 +114,28 @@ function populateCandidates({iterations, companies, candidates, slots, candidate
     company.maxScore = calculateMaxScore(company, candidates);
   });
 
+  var scoreObject = bestSchedule.score();
+
   var data = _.map(bestSchedule.schedule, function(row, i) {
-    return {company: companies[i].name, interviews: row, maxScore: companies[i].maxScore, score: calculateScore(companies[i], row)};
+    return {
+      company: companies[i].name,
+      interviews: row,
+      maxScore: companies[i].maxScore,
+      score: companies[i].companyScore,
+      percentageOfMax: companies[i].percentageOfMax,
+      adjScore: companies[i].adjScore
+    };
   });
 
   var enc = new TextEncoder("utf-8");
   var arrBuf = enc.encode(JSON.stringify({
-    score: bestSchedule.score(),
+    score: scoreObject.score,
+    adjScore: scoreObject.adjScore,
+    avgPercent: scoreObject.avgPercent,
+        // data: data,
+        // candidates: schedule.candidates,
+    companies: bestSchedule.companies,
+    schedule: bestSchedule.schedule,
     candidates: countCandidateInterviews(bestSchedule.schedule, candidates, companies, slots),
     data: data})).buffer;
   self.postMessage({aTopic: 'populated', aBuf: arrBuf}, [arrBuf]);

@@ -88,10 +88,11 @@ export default {
         var dec = new TextDecoder();
         var data = JSON.parse(dec.decode(msg.data.aBuf));
 
-        var csvContent = ["Company", "", "Slot 1", "Slot 2", "Slot 3", "Slot 4", "Slot 5", "Slot 6", "Slot 7", "Slot 8", "Max Score Possible", "Company Score"].join(",");
+        var csvContent = ["Company", "", "Slot 1", "Slot 2", "Slot 3", "Slot 4", "Slot 5", "Slot 6", "Slot 7", "Slot 8",
+          "Max Score Possible", "Company Score", "Percentage of Max", "Adjusted Score"].join(",");
         csvContent += "\n";
         _.each(data.data, function(obj, index){
-          var output = [obj.company, "", ...obj.interviews, obj.maxScore, obj.score]
+          var output = [obj.company, "", ...obj.interviews, obj.maxScore, obj.score, obj.percentageOfMax, obj.adjScore];
 
           output = _.map(output, function(a) {
             return a ? '"' + a + '"' : "";
