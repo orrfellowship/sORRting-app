@@ -158,7 +158,9 @@ Schedule.prototype.constructor = Schedule;
 
 Schedule.prototype.score = function(){
   var self = this;
-  var score = 0;
+  var totalScore = 0;
+  var totalPercentage = 0;
+  var totalAdjScore = 0;
   for (var company = 0; company < self.companies.length; company++) {
     var companyScore = 0;
     var current = self.companies[company];
@@ -172,10 +174,22 @@ Schedule.prototype.score = function(){
         companyScore += 20 - _.indexOf(preferences, candidate);
       }
     }
-    score += companyScore;
+    current.companyScore = companyScore;
+    current.percentageOfMax = Number((companyScore / current.maxScore).toFixed(4));
+    current.adjScore = Number((companyScore * current.percentageOfMax).toFixed(2));
+
+    totalScore += companyScore;
+    totalAdjScore += current.adjScore;
+    totalPercentage += current.percentageOfMax;
   }
 
-  return score;
+  var avgPercent = Number((totalPercentage / self.companies.length).toFixed(4));
+
+  return {
+    score: totalScore,
+    adjScore: Number(totalAdjScore.toFixed(0)),
+    avgPercent: avgPercent
+  }
 };
 
 Schedule.prototype.populateCandidates = function(){

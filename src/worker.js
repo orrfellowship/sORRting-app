@@ -26,6 +26,9 @@ function main({iterations, companies, candidates, slots, candidate_slots}) {
 
   _.each(companies, function(company) {
     company.maxScore = calculateMaxScore(company, candidates);
+    company.percentageOfMax = 0;
+    company.companyScore = 0;
+    company.adjScore = 0;
     company = determineDecemberGrad(company);
   });
   _.each(candidates, function(candidate) {
@@ -36,28 +39,57 @@ function main({iterations, companies, candidates, slots, candidate_slots}) {
   // console.log('company[0] - ', companies[0]);
 
   for (var i=0; i < iterations; i++) {
+    // debugger;
     _.each(candidates, function(candidate) {
       candidate.count = 0;
       for (var index=0; index<candidate.schedule.length; index++) {
         candidate.schedule[index] = null;
       }
     });
+    _.each(companies, function(company) {
+      company.percentageOfMax = 0;
+      company.companyScore = 0;
+      company.adjScore = 0;
+    });
+    // debugger;
     var schedule = new Schedule(candidates, companies, slots, candidate_slots);
+
+    var scoreObject = schedule.score();
+
     // console.log('candidate schedule -- ', schedule.candidates[0].schedule);
     var data = _.map(schedule.schedule, function(row, i) {
-      return {company: companies[i].name, interviews: row, maxScore: companies[i].maxScore, score: calculateScore(companies[i], row)};
+      return {
+        company: companies[i].name,
+        interviews: row,
+        maxScore: companies[i].maxScore,
+        score: companies[i].companyScore,
+        percentageOfMax: companies[i].percentageOfMax,
+        adjScore: companies[i].adjScore
+      };
     });
-    var score = schedule.score();
+    // debugger;
+    // var score = schedule.score();
 //     debugger;
     self.postMessage(i+1);
 //     console.log('schedule score -- ', score);
 //     console.log('schedule -- ', schedule.schedule);
-    if (score > maxScore) {
+    if (scoreObject.score > maxScore) {
       i=0;
-      maxScore = score;
+      maxScore = scoreObject.score;
+
       var enc = new TextEncoder("utf-8");
-      var arrBuf = enc.encode(JSON.stringify({score: score, data: data, candidates: schedule.candidates, companies: schedule.companies, schedule: schedule.schedule})).buffer;
+      var dataObj = {
+        score: scoreObject.score,
+        adjScore: scoreObject.adjScore,
+        avgPercent: scoreObject.avgPercent,
+        data: data,
+        candidates: schedule.candidates,
+        companies: schedule.companies,
+        schedule: schedule.schedule
+      };
+      var arrBuf = enc.encode(JSON.stringify(dataObj)).buffer;
       self.postMessage({aTopic: 'newMax', aBuf: arrBuf}, [arrBuf]);
+
       bestSchedule = schedule;
     }
     // break;

@@ -1,7 +1,7 @@
 <template>
   <div id="tile">
     <div id="content">
-      <span>#{{index + 1}} - Score: {{result.score}} </span>
+      <span>#{{index + 1}} - Score: {{result.score}}, Adjusted {{result.adjScore}} </span>
       <a id="score" target="_blank" :download="file_name" :href="csv"><img src="./assets/arrow.png" width="15"></a>
       <button @click="generateSchedule">Generate Final Schedule</button>
       <a id="final" target="_blank" :download="final_name" :href="populated" v-if="populated"> Download</a>
@@ -27,11 +27,12 @@ export default {
     },
     csv: function () {
       var self = this;
-      var csvContent = ["Company", "", "Slot 1", "Slot 2", "Slot 3", "Slot 4", "Slot 5", "Slot 6", "Slot 7", "Slot 8", "Max Score Possible", "Company Score"].join(",");
+      var csvContent = ["Company", "", "Slot 1", "Slot 2", "Slot 3", "Slot 4", "Slot 5", "Slot 6", "Slot 7", "Slot 8",
+        "Max Score Possible", "Company Score", "Percentage of Max Possible", "Adjusted Score"].join(",");
       csvContent += "\n";
       var max = 0;
       _.each(self.result.data, function(obj, index){
-        var output = [obj.company, "", ...obj.interviews, obj.maxScore, obj.score];
+        var output = [obj.company, "", ...obj.interviews, obj.maxScore, obj.score, obj.percentageOfMax, obj.adjScore];
 
         output = _.map(output, function(a) {
           return a ? '"' + a + '"' : "";
@@ -140,7 +141,7 @@ export default {
 
 #content {
   line-height: 40px;
-  width: 500px;
+  width: 40%;
   margin-left: calc(50% - 250px);
   height: 40px;
   border: 2px solid #223958;
