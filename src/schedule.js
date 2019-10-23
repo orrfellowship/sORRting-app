@@ -85,6 +85,7 @@ function Schedule(candidates, companies, slots, candidate_slots, schedule) {
                   schedule[companyIndex][slotIndex] = candidate.name;
                   candidate.count++;
                   candidate.schedule[slotIndex] = company.name;
+                  repeatCheck(candidate);
                   // console.log('schedule array -- ', schedule[companyIndex]);
                   // console.log('candidate schedule -- ', candidate.schedule);
 
@@ -101,6 +102,7 @@ function Schedule(candidates, companies, slots, candidate_slots, schedule) {
                   schedule[companyIndex][slotIndex] = candidate.name;
                   candidate.count++;
                   candidate.schedule[slotIndex] = company.name;
+                  repeatCheck(candidate);
 
                   finished = false;
                   breakout = true;
@@ -112,6 +114,7 @@ function Schedule(candidates, companies, slots, candidate_slots, schedule) {
                   schedule[companyIndex][slotIndex] = candidate.name;
                   candidate.count++;
                   candidate.schedule[slotIndex] = company.name;
+                  repeatCheck(candidate);
 
                   finished = false;
                   breakout = true;
@@ -141,6 +144,24 @@ function isValidAssignment(schedule, companyIndex, slotIndex, candidate, company
   }
 
   return true;
+}
+
+function repeatCheck(candidate) {
+  var highestRepeat = 0;
+  var repeatCount = 0;
+  for (var i = 0; i < candidate.schedule.length; i++) {
+    if (candidate.schedule[i] !== null) {
+      repeatCount++;
+      if (repeatCount > highestRepeat) highestRepeat = repeatCount;
+    } else { // interview slot is empty
+      repeatCount = 0;
+    }
+  }
+
+  // var plural = highestRepeat === 1 ? '' : 's';
+  if (highestRepeat > 2) {
+    candidate.repeats = `${highestRepeat} consecutive`;
+  }
 }
 
 function reset(candidates) {

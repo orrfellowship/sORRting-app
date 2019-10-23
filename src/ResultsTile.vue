@@ -46,10 +46,11 @@ export default {
       self.$emit('report-max', max);
 
       csvContent += " ,\n\n";
-      csvContent += ["Candidate", "Interview Count", "Slot 1", "Slot 2", "Slot 3", "Slot 4", "Slot 5", "Slot 6", "Slot 7", "Slot 8"].join(",");
+      csvContent += ["Candidate", "Interview Count", "Slot 1", "Slot 2", "Slot 3", "Slot 4", "Slot 5",
+        "Slot 6", "Slot 7", "Slot 8", "Consecutive Interviews"].join(",");
       csvContent += "\n";
       _.each(self.result.candidates, function(candidate, index){
-        var output = [candidate.name, candidate.count, ...candidate.schedule];
+        var output = [candidate.name, candidate.count, ...candidate.schedule, candidate.repeats];
         // console.log('second csv block -- ', output);
 
         // for (var i=0; i<candidate.schedule.length; i++) {
@@ -103,7 +104,8 @@ export default {
         });
 
         csvContent += " ,\n\n";
-        csvContent += ["Candidate", "Interview Count", "Slot 1", "Slot 2", "Slot 3", "Slot 4", "Slot 5", "Slot 6", "Slot 7", "Slot 8"].join(",");
+        csvContent += ["Candidate", "Interview Count", "Slot 1", "Slot 2", "Slot 3", "Slot 4", "Slot 5",
+          "Slot 6", "Slot 7", "Slot 8", "Consecutive Interviews"].join(",");
         csvContent += "\n";
         _.each(data.candidates, function(candidate, index){
           var interviewSchedule = new Array(8);
@@ -115,7 +117,7 @@ export default {
             }
           })
 
-          var output = [candidate.name, candidate.count, ...interviewSchedule];
+          var output = [candidate.name, candidate.count, ...interviewSchedule, candidate.repeats];
 
           output = _.map(output, function(a) {
             return a ? '"' + a + '"' : "";

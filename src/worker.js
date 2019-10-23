@@ -32,6 +32,7 @@ function main({iterations, companies, candidates, slots, candidate_slots}) {
     company = determineDecemberGrad(company);
   });
   _.each(candidates, function(candidate) {
+    candidate.repeats = '';
     candidate.schedule = new Array(slots);
     candidate = determineDecemberGrad(candidate);
   })
@@ -42,6 +43,7 @@ function main({iterations, companies, candidates, slots, candidate_slots}) {
     // debugger;
     _.each(candidates, function(candidate) {
       candidate.count = 0;
+      candidate.repeats = '';
       for (var index=0; index<candidate.schedule.length; index++) {
         candidate.schedule[index] = null;
       }
