@@ -44,31 +44,46 @@ function main({iterations, companies, candidates, slots, candidate_slots}) {
     _.each(candidates, function(candidate) {
       candidate.count = 0;
       candidate.repeats = '';
+      candidate.name = trimName(candidate.name);
       for (var index=0; index<candidate.schedule.length; index++) {
         candidate.schedule[index] = null;
       }
     });
+    // debugger;
     _.each(companies, function(company) {
       company.percentageOfMax = 0;
       company.companyScore = 0;
       company.adjScore = 0;
+      company.name = trimName(company.name);
     });
     // debugger;
     var schedule = new Schedule(candidates, companies, slots, candidate_slots);
 
     var scoreObject = schedule.score();
 
+    debugger;
+    // need these for the company interview schedules (schedule.row) and candidate interview schedules (candidate.schedule)
+    // (only names are stored in these spots, not objects)
+    var decGradCandidateNames = getDecemberGradNames(candidates);
+    var decGradCompanyNames = getDecemberGradNames(companies);
+
+    // need to add tags for output
+    companies = addDecemberGradTag(companies, false);
+    candidates = addDecemberGradTag(candidates, true, decGradCompanyNames);
+    debugger;
+
     // console.log('candidate schedule -- ', schedule.candidates[0].schedule);
     var data = _.map(schedule.schedule, function(row, i) {
       return {
         company: companies[i].name,
-        interviews: row,
+        interviews: addTag(row, decGradCandidateNames, '?decGrad'),
         maxScore: companies[i].maxScore,
         score: companies[i].companyScore,
         percentageOfMax: companies[i].percentageOfMax,
         adjScore: companies[i].adjScore
       };
     });
+
     // debugger;
     // var score = schedule.score();
 //     debugger;
@@ -85,10 +100,11 @@ function main({iterations, companies, candidates, slots, candidate_slots}) {
         adjScore: scoreObject.adjScore,
         avgPercent: scoreObject.avgPercent,
         data: data,
-        candidates: schedule.candidates,
-        companies: schedule.companies,
+        candidates: candidates,
+        companies: companies,
         schedule: schedule.schedule
       };
+      debugger;
       var arrBuf = enc.encode(JSON.stringify(dataObj)).buffer;
       self.postMessage({aTopic: 'newMax', aBuf: arrBuf}, [arrBuf]);
 
@@ -213,4 +229,41 @@ function indexOf(str, findChar) {
     }
   }
   return -1;
+}
+
+function addDecemberGradTag(objectList, candidates = false, decGradCompanyList = undefined) {
+  // debugger;
+  for (var i=0; i < objectList.length; i++) {
+    // debugger;
+    if (objectList[i].decGrad) {
+      var origString = objectList[i].name;
+      objectList[i].name = origString.concat('?decGrad');
+    }
+    if (candidates && decGradCompanyList) {
+      objectList[i].schedule = addTag(objectList[i].schedule, decGradCompanyList, '?decGrad');
+    }
+  }
+  return objectList;
+}
+
+function addTag(listToBeTagged, shouldBeTaggedList, strToAdd) {
+  let taggedList = [];
+  for (var i = 0; i < listToBeTagged.length; i++) {
+    if (_.contains(shouldBeTaggedList, listToBeTagged[i])) {
+      taggedList.push(listToBeTagged[i].concat(strToAdd));
+    } else {
+      taggedList.push(listToBeTagged[i]);
+    }
+  }
+  return taggedList;
+}
+
+function getDecemberGradNames(listOfObjects) {
+  let finalList = [];
+  for (var i = 0; i < listOfObjects.length; i++) {
+    if (listOfObjects[i].decGrad) {
+      finalList.push(listOfObjects[i].name);
+    }
+  }
+  return finalList;
 }
