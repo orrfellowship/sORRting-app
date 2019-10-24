@@ -72,10 +72,6 @@ function Schedule(candidates, companies, slots, candidate_slots, schedule) {
 
             // Verify current candidate has < max interviews
             if (candidate.count < candidate_slots) {
-              // if (candidate.name === 'Alex Antonetti') {
-              //   console.log('company -- ', company.name);
-              //   console.log('candidate schedule -- ', candidate.schedule);
-              // }
 
               // Verify only companies that want a december grad get one
               if (candidate.decGrad && company.decGrad) {
@@ -94,20 +90,8 @@ function Schedule(candidates, companies, slots, candidate_slots, schedule) {
                   break;
                 }
               } else if (candidate.decGrad && !company.decGrad) {
-                // alert that they got a december Grad?
-                // this shouldn't reach this state after manual cleansing
-
-                // Verify current candidate is not already scheduled for that timeslot
-                if (isValidAssignment(schedule, companyIndex, slotIndex, candidate, company.name)) {
-                  schedule[companyIndex][slotIndex] = candidate.name;
-                  candidate.count++;
-                  candidate.schedule[slotIndex] = company.name;
-                  repeatCheck(candidate);
-
-                  finished = false;
-                  breakout = true;
-                  break;
-                }
+                continue;
+                // Is candidate on company's exception list?
               } else {
                 // Verify current candidate is not already scheduled for that timeslot
                 if (isValidAssignment(schedule, companyIndex, slotIndex, candidate, company.name)) {
@@ -218,6 +202,9 @@ Schedule.prototype.populateCandidates = function(){
   // console.log('candidates[0].schedule -- ', self.candidates[0].schedule);
   // console.log('companies -- ', self.companies);
 
+  // FIXME: bug with schedule.candidate.count here
+  debugger;
+
   var finished = false;
 
   var counter = 0;
@@ -266,6 +253,9 @@ Schedule.prototype.populateCandidates = function(){
                 remaining.splice(index, 1);
                 break;
               }
+            } else if (candidate.decGrad && !company.decGrad) {
+              continue;
+              // Is candidate on company's exception list?
             } else {
               if (isValidAssignment(schedule, companyIndex, slotIndex, candidate, company.name)) {
                 // console.log('candidate -- ', candidate);

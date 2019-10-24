@@ -29,7 +29,7 @@ function main({iterations, companies, candidates, slots, candidate_slots}) {
     company.percentageOfMax = 0;
     company.companyScore = 0;
     company.adjScore = 0;
-    company = determineDecemberGrad(company);
+    company = determineDecemberGrad(company, false);
   });
   _.each(candidates, function(candidate) {
     candidate.repeats = '';
@@ -54,7 +54,7 @@ function main({iterations, companies, candidates, slots, candidate_slots}) {
       company.percentageOfMax = 0;
       company.companyScore = 0;
       company.adjScore = 0;
-      company.name = trimName(company.name);
+      // company.name = trimName(company.name);
     });
     // debugger;
     var schedule = new Schedule(candidates, companies, slots, candidate_slots);
@@ -68,8 +68,8 @@ function main({iterations, companies, candidates, slots, candidate_slots}) {
     var decGradCompanyNames = getDecemberGradNames(companies);
 
     // need to add tags for output
-    companies = addDecemberGradTag(companies, false);
-    candidates = addDecemberGradTag(candidates, true, decGradCompanyNames);
+    // companies = addDecemberGradTag(companies, false);
+    candidates = addDecemberGradTag(candidates);
     debugger;
 
     // console.log('candidate schedule -- ', schedule.candidates[0].schedule);
@@ -125,8 +125,24 @@ function populateCandidates({iterations, companies, candidates, slots, candidate
   candidates = newCandidates;
   companies = newCompanies;
   candidates = countCandidateInterviews(schedule, candidates, companies, slots);
+
+  _.each(candidates, (candidate) => {
+    candidate.name = trimName(candidate.name);
+  });
+
+  // const scheduleObj = {
+  //   schedule: schedule,
+  //   decGradCandidateNames: decGradCandidateNames,
+  //   decGradCompanyNames: decGradCompanyNames
+  // }
+  // _.each(companies, (company) => {
+  //   company.name = trimName(company.name);
+  // })
   var bestSchedule = new Schedule(candidates, companies, slots, candidate_slots, schedule);
   bestSchedule.populateCandidates();
+
+  var decGradCandidateNames = getDecemberGradNames(candidates);
+  // var decGradCompanyNames = getDecemberGradNames(companies);
 
   _.each(companies, function(company) {
     company.maxScore = calculateMaxScore(company, candidates);
@@ -134,10 +150,12 @@ function populateCandidates({iterations, companies, candidates, slots, candidate
 
   var scoreObject = bestSchedule.score();
 
+  candidates = addDecemberGradTag(candidates);
+
   var data = _.map(bestSchedule.schedule, function(row, i) {
     return {
       company: companies[i].name,
-      interviews: row,
+      interviews: addTag(row, decGradCandidateNames, '?decGrad'),
       maxScore: companies[i].maxScore,
       score: companies[i].companyScore,
       percentageOfMax: companies[i].percentageOfMax,
@@ -200,13 +218,14 @@ function countCandidateInterviews(schedule, candidates, companies, slots) {
   return candidates;
 }
 
-function determineDecemberGrad(object) {
+function determineDecemberGrad(object, trim = true) {
   if (isDecemberGrad(object.name)) {
     object.decGrad = true;
   } else {
     object.decGrad = false;
   }
-  object.name = trimName(object.name);
+  if (trim) object.name = trimName(object.name);
+  
   return object;
 }
 
@@ -231,7 +250,7 @@ function indexOf(str, findChar) {
   return -1;
 }
 
-function addDecemberGradTag(objectList, candidates = false, decGradCompanyList = undefined) {
+function addDecemberGradTag(objectList/*, candidates = false, decGradCompanyList = undefined*/) {
   // debugger;
   for (var i=0; i < objectList.length; i++) {
     // debugger;
@@ -239,9 +258,9 @@ function addDecemberGradTag(objectList, candidates = false, decGradCompanyList =
       var origString = objectList[i].name;
       objectList[i].name = origString.concat('?decGrad');
     }
-    if (candidates && decGradCompanyList) {
-      objectList[i].schedule = addTag(objectList[i].schedule, decGradCompanyList, '?decGrad');
-    }
+    // if (candidates && decGradCompanyList) {
+    //   objectList[i].schedule = addTag(objectList[i].schedule, decGradCompanyList, '?decGrad');
+    // }
   }
   return objectList;
 }
