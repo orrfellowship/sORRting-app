@@ -27,12 +27,12 @@ export default {
     },
     csv: function () {
       var self = this;
-      var csvContent = ["Company", "", "Slot 1", "Slot 2", "Slot 3", "Slot 4", "Slot 5", "Slot 6", "Slot 7", "Slot 8",
+      var csvContent = ["Company", "Top Preferences", "Slot 1", "Slot 2", "Slot 3", "Slot 4", "Slot 5", "Slot 6", "Slot 7", "Slot 8",
         "Max Score Possible", "Company Score", "Percentage of Max Possible", "Adjusted Score"].join(",");
       csvContent += "\n";
       var max = 0;
       _.each(self.result.data, function(obj, index){
-        var output = [obj.company, "", ...obj.interviews, obj.maxScore, obj.score, obj.percentageOfMax, obj.adjScore];
+        var output = [obj.company, obj.preferences, ...obj.interviews, obj.maxScore, obj.score, obj.percentageOfMax, obj.adjScore];
 
         output = _.map(output, function(a) {
           return a ? '"' + a + '"' : "";
@@ -89,11 +89,11 @@ export default {
         var dec = new TextDecoder();
         var data = JSON.parse(dec.decode(msg.data.aBuf));
 
-        var csvContent = ["Company", "", "Slot 1", "Slot 2", "Slot 3", "Slot 4", "Slot 5", "Slot 6", "Slot 7", "Slot 8",
+        var csvContent = ["Company", "Top Preferences", "Slot 1", "Slot 2", "Slot 3", "Slot 4", "Slot 5", "Slot 6", "Slot 7", "Slot 8",
           "Max Score Possible", "Company Score", "Percentage of Max", "Adjusted Score"].join(",");
         csvContent += "\n";
         _.each(data.data, function(obj, index){
-          var output = [obj.company, "", ...obj.interviews, obj.maxScore, obj.score, obj.percentageOfMax, obj.adjScore];
+          var output = [obj.company, obj.preferences, ...obj.interviews, obj.maxScore, obj.score, obj.percentageOfMax, obj.adjScore];
 
           output = _.map(output, function(a) {
             return a ? '"' + a + '"' : "";
@@ -108,16 +108,16 @@ export default {
           "Slot 6", "Slot 7", "Slot 8", "Consecutive Interviews"].join(",");
         csvContent += "\n";
         _.each(data.candidates, function(candidate, index){
-          var interviewSchedule = new Array(8);
-          _.each(data.data, function(row, index) {
-            for (var i=0; i < row.interviews.length; i++) {
-              if (row.interviews[i] === candidate.name) {
-                interviewSchedule[i] = row.company;
-              }
-            }
-          })
+          // var interviewSchedule = new Array(8);
+          // _.each(data.data, function(row, index) {
+          //   for (var i=0; i < row.interviews.length; i++) {
+          //     if (row.interviews[i] === candidate.name) {
+          //       interviewSchedule[i] = row.company;
+          //     }
+          //   }
+          // })
 
-          var output = [candidate.name, candidate.count, ...interviewSchedule, candidate.repeats];
+          var output = [candidate.name, candidate.count, ...candidate.schedule, candidate.repeats];
 
           output = _.map(output, function(a) {
             return a ? '"' + a + '"' : "";

@@ -82,6 +82,12 @@ function Schedule(candidates, companies, slots, candidate_slots, schedule) {
                   candidate.count++;
                   candidate.schedule[slotIndex] = company.name;
                   repeatCheck(candidate);
+
+                  // company got one of their top 2 preferences
+                  // (nice-to-have from Karyn)
+                  if (counter < 2) {
+                    company.topPreferences.push(counter+1);
+                  }
                   // console.log('schedule array -- ', schedule[companyIndex]);
                   // console.log('candidate schedule -- ', candidate.schedule);
 
@@ -99,6 +105,12 @@ function Schedule(candidates, companies, slots, candidate_slots, schedule) {
                   candidate.count++;
                   candidate.schedule[slotIndex] = company.name;
                   repeatCheck(candidate);
+
+                  // company got one of their top 2 preferences
+                  // (nice-to-have from Karyn)
+                  if (counter < 2) {
+                    company.topPreferences.push(counter+1);
+                  }
 
                   finished = false;
                   breakout = true;
@@ -158,6 +170,23 @@ function reset(candidates) {
   return candidates;
 }
 
+function deepCopy(arrayOfObjects) {
+  var arrayCopy = [];
+  _.each(arrayOfObjects, function(object, iter) {
+    var objectCopy = {};
+    objectCopy.count = object.count;
+    objectCopy.decGrad = object.decGrad;
+    objectCopy.name = object.name;
+    objectCopy.repeats = object.repeats;
+    objectCopy.schedule = [];
+    for (var i=0; i < object.schedule.length; i++) {
+      objectCopy.schedule.push(object.schedule[i]);
+    }
+    arrayCopy.push(objectCopy);
+  });
+  return arrayCopy;
+}
+
 Schedule.prototype = {};
 Schedule.prototype.constructor = Schedule;
 
@@ -199,6 +228,7 @@ Schedule.prototype.score = function(){
 
 Schedule.prototype.populateCandidates = function(){
   var self = this;
+  var originalCandidates = deepCopy(self.candidates);
   // console.log('candidates[0].schedule -- ', self.candidates[0].schedule);
   // console.log('companies -- ', self.companies);
 
@@ -210,6 +240,7 @@ Schedule.prototype.populateCandidates = function(){
   var counter = 0;
   while(!finished && counter < 250) {
     ++counter;
+    self.candidates = deepCopy(originalCandidates);
 
     // create randomized list of indexes we can use to get a random company
     var companyIndexes = _.shuffle(_.range(self.companies.length));
@@ -217,9 +248,10 @@ Schedule.prototype.populateCandidates = function(){
     var remaining = [];
     _.each(self.candidates, function(candidate) {
       for (var i=candidate.count; i < self.candidate_slots; i++) {
-        remaining.push(candidate);
+        remaining.push(candidate.name);
       }
     });
+    debugger;
     // console.log('remaining -- ', remaining);
 
     var schedule = JSON.parse(JSON.stringify(self.schedule));
@@ -228,6 +260,7 @@ Schedule.prototype.populateCandidates = function(){
 
     // Loop through the randomized companies
     for (var scheduleIndex=0; scheduleIndex < self.companies.length; scheduleIndex++) {
+      debugger;
 
       var companyIndex = companyIndexes[scheduleIndex];
       var company = self.companies[companyIndex];
@@ -241,7 +274,9 @@ Schedule.prototype.populateCandidates = function(){
           var index;
           var count = remaining.length;
           for (var index=0; index < count; index++) {
-            var candidate = remaining[index];
+            var candidate = _.findWhere(self.candidates, { name: remaining[index] });
+            // debugger;
+            // var candidate = remaining[index];
             // console.log('candidateName -- ', candidate.name);
             // console.log('candidate schedule -- ', candidate.schedule); 
             
@@ -249,7 +284,8 @@ Schedule.prototype.populateCandidates = function(){
               if (isValidAssignment(schedule, companyIndex, slotIndex, candidate, company.name)) {
                 schedule[companyIndex][slotIndex] = candidate.name;
                 candidate.schedule[slotIndex] = company.name;
-                // candidate.count++;
+                candidate.count++;
+                repeatCheck(candidate);
                 remaining.splice(index, 1);
                 break;
               }
@@ -261,7 +297,8 @@ Schedule.prototype.populateCandidates = function(){
                 // console.log('candidate -- ', candidate);
                 schedule[companyIndex][slotIndex] = candidate.name;
                 candidate.schedule[slotIndex] = company.name;
-                // candidate.count++;
+                candidate.count++;
+                repeatCheck(candidate);
                 remaining.splice(index, 1);
                 break;
               }

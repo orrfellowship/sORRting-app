@@ -29,6 +29,7 @@ function main({iterations, companies, candidates, slots, candidate_slots}) {
     company.percentageOfMax = 0;
     company.companyScore = 0;
     company.adjScore = 0;
+    company.topPreferences = [];
     company = determineDecemberGrad(company, false);
   });
   _.each(candidates, function(candidate) {
@@ -54,6 +55,7 @@ function main({iterations, companies, candidates, slots, candidate_slots}) {
       company.percentageOfMax = 0;
       company.companyScore = 0;
       company.adjScore = 0;
+      company.topPreferences = [];
       // company.name = trimName(company.name);
     });
     // debugger;
@@ -61,7 +63,7 @@ function main({iterations, companies, candidates, slots, candidate_slots}) {
 
     var scoreObject = schedule.score();
 
-    debugger;
+    // debugger;
     // need these for the company interview schedules (schedule.row) and candidate interview schedules (candidate.schedule)
     // (only names are stored in these spots, not objects)
     var decGradCandidateNames = getDecemberGradNames(candidates);
@@ -76,6 +78,7 @@ function main({iterations, companies, candidates, slots, candidate_slots}) {
     var data = _.map(schedule.schedule, function(row, i) {
       return {
         company: companies[i].name,
+        preferences: companies[i].topPreferences, 
         interviews: addTag(row, decGradCandidateNames, '?decGrad'),
         maxScore: companies[i].maxScore,
         score: companies[i].companyScore,
@@ -84,7 +87,7 @@ function main({iterations, companies, candidates, slots, candidate_slots}) {
       };
     });
 
-    // debugger;
+    debugger;
     // var score = schedule.score();
 //     debugger;
     self.postMessage(i+1);
@@ -104,7 +107,6 @@ function main({iterations, companies, candidates, slots, candidate_slots}) {
         companies: companies,
         schedule: schedule.schedule
       };
-      debugger;
       var arrBuf = enc.encode(JSON.stringify(dataObj)).buffer;
       self.postMessage({aTopic: 'newMax', aBuf: arrBuf}, [arrBuf]);
 
@@ -117,28 +119,17 @@ function main({iterations, companies, candidates, slots, candidate_slots}) {
 }
 
 function populateCandidates({iterations, companies, candidates, slots, candidate_slots, schedule, newCompanies, newCandidates}) {
-  // console.log('schedule -- ', schedule);
-  // console.log('companies -- ', companies);
-  // console.log('candidates -- ', candidates);
-  // console.log('newCandidates -- ', newCandidates);
-  // console.log('newCompanies -- ', newCompanies);
   candidates = newCandidates;
   companies = newCompanies;
-  candidates = countCandidateInterviews(schedule, candidates, companies, slots);
+  debugger;
 
   _.each(candidates, (candidate) => {
     candidate.name = trimName(candidate.name);
   });
+  debugger;
 
-  // const scheduleObj = {
-  //   schedule: schedule,
-  //   decGradCandidateNames: decGradCandidateNames,
-  //   decGradCompanyNames: decGradCompanyNames
-  // }
-  // _.each(companies, (company) => {
-  //   company.name = trimName(company.name);
-  // })
   var bestSchedule = new Schedule(candidates, companies, slots, candidate_slots, schedule);
+  debugger;
   bestSchedule.populateCandidates();
 
   var decGradCandidateNames = getDecemberGradNames(candidates);
@@ -147,6 +138,7 @@ function populateCandidates({iterations, companies, candidates, slots, candidate
   _.each(companies, function(company) {
     company.maxScore = calculateMaxScore(company, candidates);
   });
+  debugger;
 
   var scoreObject = bestSchedule.score();
 
@@ -155,6 +147,7 @@ function populateCandidates({iterations, companies, candidates, slots, candidate
   var data = _.map(bestSchedule.schedule, function(row, i) {
     return {
       company: companies[i].name,
+      preferences: companies[i].topPreferences,
       interviews: addTag(row, decGradCandidateNames, '?decGrad'),
       maxScore: companies[i].maxScore,
       score: companies[i].companyScore,
@@ -163,16 +156,17 @@ function populateCandidates({iterations, companies, candidates, slots, candidate
     };
   });
 
+  debugger;
   var enc = new TextEncoder("utf-8");
   var arrBuf = enc.encode(JSON.stringify({
     score: scoreObject.score,
     adjScore: scoreObject.adjScore,
     avgPercent: scoreObject.avgPercent,
         // data: data,
-        // candidates: schedule.candidates,
+    candidates: bestSchedule.candidates,
     companies: bestSchedule.companies,
     schedule: bestSchedule.schedule,
-    candidates: countCandidateInterviews(bestSchedule.schedule, candidates, companies, slots),
+    // candidates: countCandidateInterviews(bestSchedule.schedule, candidates, companies, slots),
     data: data})).buffer;
   self.postMessage({aTopic: 'populated', aBuf: arrBuf}, [arrBuf]);
 

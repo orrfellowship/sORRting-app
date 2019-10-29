@@ -23,7 +23,7 @@
 </template>
 
 <script>
-import _ from 'underscore'
+import _ from 'underscore';
 var MyWorker = require("worker-loader!./worker.js");
 import Copyright from './Copyright.vue'
 import FileInput from './FileInput.vue'
