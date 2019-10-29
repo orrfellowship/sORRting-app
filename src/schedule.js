@@ -82,8 +82,27 @@ function Schedule(candidates, companies, slots, candidate_slots, schedule) {
                   break;
                 }
               } else if (candidate.decGrad && !company.decGrad) {
-                continue;
+                if (!_.contains(company.exceptions, candidate.name)) continue;
+
                 // Is candidate on company's exception list?
+                
+                // Verify current candidate is not already scheduled for that timeslot
+                if (isValidAssignment(schedule, companyIndex, slotIndex, candidate, company.name)) {
+                  schedule[companyIndex][slotIndex] = candidate.name;
+                  candidate.count++;
+                  candidate.schedule[slotIndex] = company.name;
+                  repeatCheck(candidate);
+
+                  // company got one of their top 2 preferences
+                  // (nice-to-have from Karyn)
+                  if (counter < 2) {
+                    company.topPreferences.push(counter+1);
+                  }
+
+                  finished = false;
+                  breakout = true;
+                  break;
+                }
               } else {
                 // Verify current candidate is not already scheduled for that timeslot
                 if (isValidAssignment(schedule, companyIndex, slotIndex, candidate, company.name)) {
@@ -252,8 +271,27 @@ Schedule.prototype.populateCandidates = function(){
                 break;
               }
             } else if (candidate.decGrad && !company.decGrad) {
-              continue;
+              if (!_.contains(company.exceptions, candidate.name)) continue;
+
               // Is candidate on company's exception list?
+              
+              // Verify current candidate is not already scheduled for that timeslot
+              if (isValidAssignment(schedule, companyIndex, slotIndex, candidate, company.name)) {
+                schedule[companyIndex][slotIndex] = candidate.name;
+                candidate.count++;
+                candidate.schedule[slotIndex] = company.name;
+                repeatCheck(candidate);
+
+                // company got one of their top 2 preferences
+                // (nice-to-have from Karyn)
+                if (counter < 2) {
+                  company.topPreferences.push(counter+1);
+                }
+
+                finished = false;
+                breakout = true;
+                break;
+              }
             } else {
               if (isValidAssignment(schedule, companyIndex, slotIndex, candidate, company.name)) {
                 // console.log('candidate -- ', candidate);

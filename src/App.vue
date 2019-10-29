@@ -53,9 +53,12 @@ export default {
       else if (!this.data.candidate_slots) this.validation_msg = "Please enter a valid number of candidate interview slots.";
       else if (!this.data.candidates || !this.data.companies) this.validation_msg = "Please upload all the required files.";
       else {
+        debugger;
+        console.log('company length -- ', this.data.companies.length);
+        console.log('candidates length -- ', this.data.candidates.length);
         // Validate Candidates File
         if (!this.data.companies[0].name || !_.isArray(this.data.companies[0].preferences)) this.validation_msg = "Make sure your input files are correct - company preferences should be company, pref1, pref2, ...";
-        else if (this.data.candidates.length != 2*this.data.companies.length) {
+        else if (this.data.candidates.length != this.data.companies.length) {
           this.validation_msg = "Make sure your input files are correct - there should be twice as many candidates as companies.";
         }
       }

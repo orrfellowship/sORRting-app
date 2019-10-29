@@ -20,6 +20,9 @@ self.onmessage = function (msg) {
 }
 
 function main({iterations, companies, candidates, slots, candidate_slots}) {
+  // debugger;
+  companies = processCompanyExceptions(companies);
+  // debugger;
 
   var maxScore = 0;
   var bestSchedule = null;
@@ -251,4 +254,26 @@ function getDecemberGradNames(listOfObjects) {
     }
   }
   return finalList;
+}
+
+function processCompanyExceptions(companyList) {
+  var finalCompanyList = [];
+  for (var i = 0; i < companyList.length; i=i+2) {
+    // debugger;
+    var newCompany = {};
+    newCompany.name = companyList[i].name;
+    newCompany.preferences = companyList[i].preferences;
+
+    var exceptionList = [];
+    var companyExceptionList = companyList[i+1].preferences;
+    for (var index=0; index < companyExceptionList.length; index++) {
+      if (companyExceptionList[index] !== '') {
+        exceptionList.push(companyExceptionList[index]);
+      }
+    }
+    // debugger;
+    newCompany.exceptions = exceptionList;
+    finalCompanyList.push(newCompany);
+  }
+  return finalCompanyList;
 }
