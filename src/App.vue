@@ -57,8 +57,6 @@ export default {
         if (!this.data.companies[0].name || !_.isArray(this.data.companies[0].preferences)) this.validation_msg = "Make sure your input files are correct - company preferences should be company, pref1, pref2, ...";
         else if (this.data.candidates.length != 2*this.data.companies.length) {
           this.validation_msg = "Make sure your input files are correct - there should be twice as many candidates as companies.";
-          console.log('candidates length -- ', this.data.candidates.length);
-          console.log('companies length -- ', this.data.companies.length);
         }
       }
 
@@ -86,7 +84,6 @@ export default {
         var data = JSON.parse(dec.decode(msg.data.aBuf));
 
         self.results.unshift(data);
-        console.log('data returned -- ', data);
       }
     },
     toggleHelp() {

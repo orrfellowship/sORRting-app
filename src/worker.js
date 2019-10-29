@@ -37,11 +37,8 @@ function main({iterations, companies, candidates, slots, candidate_slots}) {
     candidate.schedule = new Array(slots);
     candidate = determineDecemberGrad(candidate);
   })
-  // console.log('candidate[0] -- ', candidates[0]);
-  // console.log('company[0] - ', companies[0]);
 
   for (var i=0; i < iterations; i++) {
-    // debugger;
     _.each(candidates, function(candidate) {
       candidate.count = 0;
       candidate.repeats = '';
@@ -50,31 +47,24 @@ function main({iterations, companies, candidates, slots, candidate_slots}) {
         candidate.schedule[index] = null;
       }
     });
-    // debugger;
     _.each(companies, function(company) {
       company.percentageOfMax = 0;
       company.companyScore = 0;
       company.adjScore = 0;
       company.topPreferences = [];
-      // company.name = trimName(company.name);
     });
-    // debugger;
     var schedule = new Schedule(candidates, companies, slots, candidate_slots);
 
     var scoreObject = schedule.score();
 
-    // debugger;
     // need these for the company interview schedules (schedule.row) and candidate interview schedules (candidate.schedule)
     // (only names are stored in these spots, not objects)
     var decGradCandidateNames = getDecemberGradNames(candidates);
     var decGradCompanyNames = getDecemberGradNames(companies);
 
     // need to add tags for output
-    // companies = addDecemberGradTag(companies, false);
     candidates = addDecemberGradTag(candidates);
-    debugger;
 
-    // console.log('candidate schedule -- ', schedule.candidates[0].schedule);
     var data = _.map(schedule.schedule, function(row, i) {
       return {
         company: companies[i].name,
@@ -87,12 +77,8 @@ function main({iterations, companies, candidates, slots, candidate_slots}) {
       };
     });
 
-    debugger;
-    // var score = schedule.score();
-//     debugger;
     self.postMessage(i+1);
-//     console.log('schedule score -- ', score);
-//     console.log('schedule -- ', schedule.schedule);
+
     if (scoreObject.score > maxScore) {
       i=0;
       maxScore = scoreObject.score;
@@ -112,7 +98,6 @@ function main({iterations, companies, candidates, slots, candidate_slots}) {
 
       bestSchedule = schedule;
     }
-    // break;
   }
 
   close();
@@ -121,24 +106,19 @@ function main({iterations, companies, candidates, slots, candidate_slots}) {
 function populateCandidates({iterations, companies, candidates, slots, candidate_slots, schedule, newCompanies, newCandidates}) {
   candidates = newCandidates;
   companies = newCompanies;
-  debugger;
 
   _.each(candidates, (candidate) => {
     candidate.name = trimName(candidate.name);
   });
-  debugger;
 
   var bestSchedule = new Schedule(candidates, companies, slots, candidate_slots, schedule);
-  debugger;
   bestSchedule.populateCandidates();
 
   var decGradCandidateNames = getDecemberGradNames(candidates);
-  // var decGradCompanyNames = getDecemberGradNames(companies);
 
   _.each(companies, function(company) {
     company.maxScore = calculateMaxScore(company, candidates);
   });
-  debugger;
 
   var scoreObject = bestSchedule.score();
 
@@ -156,17 +136,14 @@ function populateCandidates({iterations, companies, candidates, slots, candidate
     };
   });
 
-  debugger;
   var enc = new TextEncoder("utf-8");
   var arrBuf = enc.encode(JSON.stringify({
     score: scoreObject.score,
     adjScore: scoreObject.adjScore,
     avgPercent: scoreObject.avgPercent,
-        // data: data,
     candidates: bestSchedule.candidates,
     companies: bestSchedule.companies,
     schedule: bestSchedule.schedule,
-    // candidates: countCandidateInterviews(bestSchedule.schedule, candidates, companies, slots),
     data: data})).buffer;
   self.postMessage({aTopic: 'populated', aBuf: arrBuf}, [arrBuf]);
 
@@ -244,17 +221,12 @@ function indexOf(str, findChar) {
   return -1;
 }
 
-function addDecemberGradTag(objectList/*, candidates = false, decGradCompanyList = undefined*/) {
-  // debugger;
+function addDecemberGradTag(objectList) {
   for (var i=0; i < objectList.length; i++) {
-    // debugger;
     if (objectList[i].decGrad) {
       var origString = objectList[i].name;
       objectList[i].name = origString.concat('?decGrad');
     }
-    // if (candidates && decGradCompanyList) {
-    //   objectList[i].schedule = addTag(objectList[i].schedule, decGradCompanyList, '?decGrad');
-    // }
   }
   return objectList;
 }

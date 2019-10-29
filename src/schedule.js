@@ -1,5 +1,4 @@
 function Schedule(candidates, companies, slots, candidate_slots, schedule) {
-//   debugger;
   var self = this;
 
   self.candidates = candidates;
@@ -19,11 +18,6 @@ function Schedule(candidates, companies, slots, candidate_slots, schedule) {
     schedule[i] = new Array(slots);
   }
 
-  // console.log('candidates -- ', candidates);
-  // console.log('companies -- ', companies);
-
-//   candidates = reset(candidates);
-
   // create randomized list of indexes we can use to get a random company
   var companyIndexes = _.shuffle(_.range(companies.length));
   // create randomized list of indexes we can use to get a random interview slot
@@ -32,22 +26,18 @@ function Schedule(candidates, companies, slots, candidate_slots, schedule) {
   // While not finished, let's loop
   var finished = false;
   var breakout = false;
-//   debugger;
   while(!finished) {
   
     finished = true;
 
     // Shuffle the company indexes again
     companyIndexes = _.shuffle(companyIndexes);
-    // console.log('companyIndexes -- ', companyIndexes);
 
     // Loop through the randomized companies
     for (var scheduleIndex=0; scheduleIndex < companies.length; scheduleIndex++) {
 
       var companyIndex = companyIndexes[scheduleIndex];
-      // console.log('companyIndex -- ', companyIndex);
       var company = companies[companyIndex];
-      // console.log('company -- ', JSON.stringify(company));
 
       // Get the preference list for current company
       var preferences = company.preferences;
@@ -67,7 +57,6 @@ function Schedule(candidates, companies, slots, candidate_slots, schedule) {
           for (var counter = 0; counter < preferences.length; counter++) {
             // Verify current candidate has been given an interview
             var candidate = _.findWhere(candidates, { name: preferences[counter] });
-            // console.log('candidate -- ', JSON.stringify(candidate));
             if (!candidate) continue;
 
             // Verify current candidate has < max interviews
@@ -77,7 +66,6 @@ function Schedule(candidates, companies, slots, candidate_slots, schedule) {
               if (candidate.decGrad && company.decGrad) {
                 // Verify current candidate is not already scheduled for that timeslot
                 if (isValidAssignment(schedule, companyIndex, slotIndex, candidate, company.name)) {
-                  // console.log('slot index -- ', slotIndex);
                   schedule[companyIndex][slotIndex] = candidate.name;
                   candidate.count++;
                   candidate.schedule[slotIndex] = company.name;
@@ -88,8 +76,6 @@ function Schedule(candidates, companies, slots, candidate_slots, schedule) {
                   if (counter < 2) {
                     company.topPreferences.push(counter+1);
                   }
-                  // console.log('schedule array -- ', schedule[companyIndex]);
-                  // console.log('candidate schedule -- ', candidate.schedule);
 
                   finished = false;
                   breakout = true;
@@ -154,20 +140,9 @@ function repeatCheck(candidate) {
     }
   }
 
-  // var plural = highestRepeat === 1 ? '' : 's';
   if (highestRepeat > 2) {
     candidate.repeats = `${highestRepeat} consecutive`;
   }
-}
-
-function reset(candidates) {
-  _.each(candidates, function(candidate) {
-    candidate.count = 0;
-    _.each(candidate.schedule, function(slot) {
-      slot = null;
-    })
-  });
-  return candidates;
 }
 
 function deepCopy(arrayOfObjects) {
@@ -199,7 +174,6 @@ Schedule.prototype.score = function(){
     var companyScore = 0;
     var current = self.companies[company];
     var preferences = current.preferences;
-//     debugger;
 
     for (var slot = 0; slot < self.slots; slot++) {
       var candidate = self.schedule[company][slot];
@@ -229,11 +203,6 @@ Schedule.prototype.score = function(){
 Schedule.prototype.populateCandidates = function(){
   var self = this;
   var originalCandidates = deepCopy(self.candidates);
-  // console.log('candidates[0].schedule -- ', self.candidates[0].schedule);
-  // console.log('companies -- ', self.companies);
-
-  // FIXME: bug with schedule.candidate.count here
-  debugger;
 
   var finished = false;
 
@@ -251,8 +220,6 @@ Schedule.prototype.populateCandidates = function(){
         remaining.push(candidate.name);
       }
     });
-    debugger;
-    // console.log('remaining -- ', remaining);
 
     var schedule = JSON.parse(JSON.stringify(self.schedule));
 
@@ -260,7 +227,6 @@ Schedule.prototype.populateCandidates = function(){
 
     // Loop through the randomized companies
     for (var scheduleIndex=0; scheduleIndex < self.companies.length; scheduleIndex++) {
-      debugger;
 
       var companyIndex = companyIndexes[scheduleIndex];
       var company = self.companies[companyIndex];
@@ -275,10 +241,6 @@ Schedule.prototype.populateCandidates = function(){
           var count = remaining.length;
           for (var index=0; index < count; index++) {
             var candidate = _.findWhere(self.candidates, { name: remaining[index] });
-            // debugger;
-            // var candidate = remaining[index];
-            // console.log('candidateName -- ', candidate.name);
-            // console.log('candidate schedule -- ', candidate.schedule); 
             
             if (candidate.decGrad && company.decGrad) {
               if (isValidAssignment(schedule, companyIndex, slotIndex, candidate, company.name)) {
@@ -304,7 +266,6 @@ Schedule.prototype.populateCandidates = function(){
               }
             }
           }
-          console.log('spot still open? -- ', _.isEmpty(schedule[companyIndex][slotIndex]));
           if (index === count) {
   				  finished = false;
   				}

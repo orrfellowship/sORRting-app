@@ -51,13 +51,6 @@ export default {
       csvContent += "\n";
       _.each(self.result.candidates, function(candidate, index){
         var output = [candidate.name, candidate.count, ...candidate.schedule, candidate.repeats];
-        // console.log('second csv block -- ', output);
-
-        // for (var i=0; i<candidate.schedule.length; i++) {
-        //   if (candidate.schedule[i]) output.push(candidate.schedule[i]);
-        //   else { output.push(null); }
-        //   // output.push(candidate.schedule[i]);
-        // }
 
         output = _.map(output, function(a) {
           return a ? '"' + a + '"' : "";
@@ -88,6 +81,7 @@ export default {
       worker.onmessage = function (msg) {
         var dec = new TextDecoder();
         var data = JSON.parse(dec.decode(msg.data.aBuf));
+        debugger;
 
         var csvContent = ["Company", "Top Preferences", "Slot 1", "Slot 2", "Slot 3", "Slot 4", "Slot 5", "Slot 6", "Slot 7", "Slot 8",
           "Max Score Possible", "Company Score", "Percentage of Max", "Adjusted Score"].join(",");
@@ -108,14 +102,6 @@ export default {
           "Slot 6", "Slot 7", "Slot 8", "Consecutive Interviews"].join(",");
         csvContent += "\n";
         _.each(data.candidates, function(candidate, index){
-          // var interviewSchedule = new Array(8);
-          // _.each(data.data, function(row, index) {
-          //   for (var i=0; i < row.interviews.length; i++) {
-          //     if (row.interviews[i] === candidate.name) {
-          //       interviewSchedule[i] = row.company;
-          //     }
-          //   }
-          // })
 
           var output = [candidate.name, candidate.count, ...candidate.schedule, candidate.repeats];
 
