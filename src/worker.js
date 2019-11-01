@@ -6,6 +6,7 @@ self.onmessage = function (msg) {
     case 'load':
       var dec = new TextDecoder();
       var data = JSON.parse(dec.decode(msg.data.aBuf));
+      // debugger;
       main(data)
       break;
     case 'populate':
@@ -19,10 +20,11 @@ self.onmessage = function (msg) {
   }
 }
 
-function main({iterations, companies, candidates, slots, candidate_slots}) {
+function main({iterations, companies, candidates, slots, candidate_slots, maxConsecutive}) {
   // debugger;
   companies = processCompanyExceptions(companies);
-  // debugger;
+  // maxConsecutive = 3;
+  debugger;
 
   var maxScore = 0;
   var bestSchedule = null;
@@ -56,7 +58,7 @@ function main({iterations, companies, candidates, slots, candidate_slots}) {
       company.adjScore = 0;
       company.topPreferences = [];
     });
-    var schedule = new Schedule(candidates, companies, slots, candidate_slots);
+    var schedule = new Schedule(candidates, companies, slots, candidate_slots, maxConsecutive);
 
     var scoreObject = schedule.score();
 
@@ -94,7 +96,8 @@ function main({iterations, companies, candidates, slots, candidate_slots}) {
         data: data,
         candidates: candidates,
         companies: companies,
-        schedule: schedule.schedule
+        schedule: schedule.schedule,
+        maxConsecutive: maxConsecutive
       };
       var arrBuf = enc.encode(JSON.stringify(dataObj)).buffer;
       self.postMessage({aTopic: 'newMax', aBuf: arrBuf}, [arrBuf]);
@@ -106,15 +109,15 @@ function main({iterations, companies, candidates, slots, candidate_slots}) {
   close();
 }
 
-function populateCandidates({iterations, companies, candidates, slots, candidate_slots, schedule, newCompanies, newCandidates}) {
+function populateCandidates({iterations, companies, candidates, slots, candidate_slots, schedule, newCompanies, newCandidates, maxConsecutive}) {
   candidates = newCandidates;
   companies = newCompanies;
-
+  debugger;
   _.each(candidates, (candidate) => {
     candidate.name = trimName(candidate.name);
   });
 
-  var bestSchedule = new Schedule(candidates, companies, slots, candidate_slots, schedule);
+  var bestSchedule = new Schedule(candidates, companies, slots, candidate_slots, maxConsecutive, schedule);
   bestSchedule.populateCandidates();
 
   var decGradCandidateNames = getDecemberGradNames(candidates);
@@ -125,7 +128,8 @@ function populateCandidates({iterations, companies, candidates, slots, candidate
 
   var scoreObject = bestSchedule.score();
 
-  candidates = addDecemberGradTag(candidates);
+  bestSchedule.candidates = addDecemberGradTag(bestSchedule.candidates);
+  debugger;
 
   var data = _.map(bestSchedule.schedule, function(row, i) {
     return {

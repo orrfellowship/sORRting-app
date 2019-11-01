@@ -9,6 +9,15 @@
       <TextInput label="Interviews / Company" item="slots" default_val="8" @set-data="setData"></TextInput>
       <TextInput label="Interviews / Candidate" item="candidate_slots" default_val="4" @set-data="setData"></TextInput>
       <TextInput label="iterations" item="iterations" default_val="1000" @set-data="setData"></TextInput>
+      <div id="selectDiv">
+        <span>Max Consecutive Interviews</span>
+        <select v-model="maxConsecutive">
+          <option disabled value=""/>
+          <option>2</option>
+          <option>3</option>
+          <option>4</option>
+        </select>
+      </div>
     </div>
     <button class="tooltip" @click="startWorker" :disabled="validation_msg.length > 0">Let's Go<span class="tooltiptext" v-if="validation_msg.length > 0">{{ this.validation_msg }}</span></button>
     <a id="help" href="#" @click="toggleHelp">need help?</a>
@@ -35,6 +44,7 @@ export default {
   data: () => ({
     data: {iterations: 1000, slots: 8, candidate_slots: 4},
     validation_msg: "Please upload all the required files.",
+    maxConsecutive: 3,
     currentIteration: 0,
     results: [],
     worker: null,
@@ -53,9 +63,6 @@ export default {
       else if (!this.data.candidate_slots) this.validation_msg = "Please enter a valid number of candidate interview slots.";
       else if (!this.data.candidates || !this.data.companies) this.validation_msg = "Please upload all the required files.";
       else {
-        debugger;
-        console.log('company length -- ', this.data.companies.length);
-        console.log('candidates length -- ', this.data.candidates.length);
         // Validate Candidates File
         if (!this.data.companies[0].name || !_.isArray(this.data.companies[0].preferences)) this.validation_msg = "Make sure your input files are correct - company preferences should be company, pref1, pref2, ...";
         else if (this.data.candidates.length != this.data.companies.length) {
@@ -66,6 +73,8 @@ export default {
       return _.isEmpty(this.validation_msg);
     },
     setData(data) {
+      // console.log(data);
+      // debugger;
       this.data = _.extend(this.data, data);
       this.validate();
     },
@@ -73,6 +82,7 @@ export default {
       var self = this;
       this.worker = new MyWorker();
       var enc = new TextEncoder("utf-8");
+      this.data.maxConsecutive = Number(this.maxConsecutive);
       var arrBuf = enc.encode(JSON.stringify(this.data)).buffer;
 
       this.worker.postMessage({aTopic: 'load', aBuf: arrBuf}, [arrBuf]);

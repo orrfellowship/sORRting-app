@@ -1,10 +1,12 @@
-function Schedule(candidates, companies, slots, candidate_slots, schedule) {
+function Schedule(candidates, companies, slots, candidate_slots, maxConsecutive, schedule) {
   var self = this;
 
   self.candidates = candidates;
   self.companies = companies;
   self.slots = slots;
   self.candidate_slots = candidate_slots;
+  self.maxConsecutive = maxConsecutive;
+  // debugger;
 
   if (schedule) {
     self.schedule = schedule;
@@ -57,6 +59,8 @@ function Schedule(candidates, companies, slots, candidate_slots, schedule) {
           for (var counter = 0; counter < preferences.length; counter++) {
             // Verify current candidate has been given an interview
             var candidate = _.findWhere(candidates, { name: preferences[counter] });
+            // debugger;
+           
             if (!candidate) continue;
 
             // Verify current candidate has < max interviews
@@ -65,7 +69,7 @@ function Schedule(candidates, companies, slots, candidate_slots, schedule) {
               // Verify only companies that want a december grad get one
               if (candidate.decGrad && company.decGrad) {
                 // Verify current candidate is not already scheduled for that timeslot
-                if (isValidAssignment(schedule, companyIndex, slotIndex, candidate, company.name)) {
+                if (isValidAssignment(schedule, companyIndex, slotIndex, candidate, company.name, self.maxConsecutive)) {
                   schedule[companyIndex][slotIndex] = candidate.name;
                   candidate.count++;
                   candidate.schedule[slotIndex] = company.name;
@@ -87,7 +91,7 @@ function Schedule(candidates, companies, slots, candidate_slots, schedule) {
                 // Is candidate on company's exception list?
                 
                 // Verify current candidate is not already scheduled for that timeslot
-                if (isValidAssignment(schedule, companyIndex, slotIndex, candidate, company.name)) {
+                if (isValidAssignment(schedule, companyIndex, slotIndex, candidate, company.name, self.maxConsecutive)) {
                   schedule[companyIndex][slotIndex] = candidate.name;
                   candidate.count++;
                   candidate.schedule[slotIndex] = company.name;
@@ -105,7 +109,7 @@ function Schedule(candidates, companies, slots, candidate_slots, schedule) {
                 }
               } else {
                 // Verify current candidate is not already scheduled for that timeslot
-                if (isValidAssignment(schedule, companyIndex, slotIndex, candidate, company.name)) {
+                if (isValidAssignment(schedule, companyIndex, slotIndex, candidate, company.name, self.maxConsecutive)) {
                   schedule[companyIndex][slotIndex] = candidate.name;
                   candidate.count++;
                   candidate.schedule[slotIndex] = company.name;
@@ -136,13 +140,30 @@ function Schedule(candidates, companies, slots, candidate_slots, schedule) {
   self.schedule = schedule;
 }
 
-function isValidAssignment(schedule, companyIndex, slotIndex, candidate, companyName) {
+function isValidAssignment(schedule, companyIndex, slotIndex, candidate, companyName, maxConsecutive) {
   if (_.contains(schedule[companyIndex], candidate.name)) return false;
   if (_.contains(candidate.schedule, companyName)) return false;
+  if (candidate.schedule[slotIndex] !== null) return false;
 
-  for (var i=0; i<schedule.length; i++) {
-    if (schedule[i][slotIndex] === candidate.name) return false;
+  var tempList = deepCopyArray(candidate.schedule);
+  tempList[slotIndex] = candidate.name;
+  // debugger;
+  var highestRepeat = 0;
+  var repeatCount = 0;
+  for (var i=0; i<tempList.length; i++) {
+    if (tempList[i] !== null) {
+      repeatCount++;
+      if (repeatCount > highestRepeat) highestRepeat = repeatCount;
+    } else { // interview slot is empty
+      repeatCount = 0;
+    }
   }
+  // debugger;
+  if (highestRepeat > maxConsecutive) return false;
+
+  // for (var i=0; i<schedule.length; i++) {
+  //   if (schedule[i][slotIndex] === candidate.name) return false;
+  // }
 
   return true;
 }
@@ -164,7 +185,7 @@ function repeatCheck(candidate) {
   }
 }
 
-function deepCopy(arrayOfObjects) {
+function deepCopyArrayOfObjects(arrayOfObjects) {
   var arrayCopy = [];
   _.each(arrayOfObjects, function(object, iter) {
     var objectCopy = {};
@@ -179,6 +200,14 @@ function deepCopy(arrayOfObjects) {
     arrayCopy.push(objectCopy);
   });
   return arrayCopy;
+}
+
+function deepCopyArray(array) {
+  var tempArray = [];
+  _.each(array, (value) => {
+    tempArray.push(value);
+  });
+  return tempArray;
 }
 
 Schedule.prototype = {};
@@ -221,14 +250,15 @@ Schedule.prototype.score = function(){
 
 Schedule.prototype.populateCandidates = function(){
   var self = this;
-  var originalCandidates = deepCopy(self.candidates);
+  var originalCandidates = deepCopyArrayOfObjects(self.candidates);
+  debugger;
 
   var finished = false;
 
   var counter = 0;
   while(!finished && counter < 250) {
     ++counter;
-    self.candidates = deepCopy(originalCandidates);
+    self.candidates = deepCopyArrayOfObjects(originalCandidates);
 
     // create randomized list of indexes we can use to get a random company
     var companyIndexes = _.shuffle(_.range(self.companies.length));
@@ -262,7 +292,7 @@ Schedule.prototype.populateCandidates = function(){
             var candidate = _.findWhere(self.candidates, { name: remaining[index] });
             
             if (candidate.decGrad && company.decGrad) {
-              if (isValidAssignment(schedule, companyIndex, slotIndex, candidate, company.name)) {
+              if (isValidAssignment(schedule, companyIndex, slotIndex, candidate, company.name, self.maxConsecutive)) {
                 schedule[companyIndex][slotIndex] = candidate.name;
                 candidate.schedule[slotIndex] = company.name;
                 candidate.count++;
@@ -276,7 +306,7 @@ Schedule.prototype.populateCandidates = function(){
               // Is candidate on company's exception list?
               
               // Verify current candidate is not already scheduled for that timeslot
-              if (isValidAssignment(schedule, companyIndex, slotIndex, candidate, company.name)) {
+              if (isValidAssignment(schedule, companyIndex, slotIndex, candidate, company.name, self.maxConsecutive)) {
                 schedule[companyIndex][slotIndex] = candidate.name;
                 candidate.count++;
                 candidate.schedule[slotIndex] = company.name;
@@ -293,7 +323,7 @@ Schedule.prototype.populateCandidates = function(){
                 break;
               }
             } else {
-              if (isValidAssignment(schedule, companyIndex, slotIndex, candidate, company.name)) {
+              if (isValidAssignment(schedule, companyIndex, slotIndex, candidate, company.name, self.maxConsecutive)) {
                 // console.log('candidate -- ', candidate);
                 schedule[companyIndex][slotIndex] = candidate.name;
                 candidate.schedule[slotIndex] = company.name;

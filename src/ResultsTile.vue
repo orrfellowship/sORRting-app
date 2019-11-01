@@ -74,7 +74,8 @@ export default {
         {
           schedule: this.result.schedule,
           newCompanies: this.result.companies,
-          newCandidates: this.result.candidates
+          newCandidates: this.result.candidates,
+          maxConsecutive: this.result.maxConsecutive
         }))).buffer;
       worker.postMessage({aTopic: 'populate', aBuf: arrBuf}, [arrBuf]);
 
