@@ -6,7 +6,6 @@ function Schedule(candidates, companies, slots, candidate_slots, maxConsecutive,
   self.slots = slots;
   self.candidate_slots = candidate_slots;
   self.maxConsecutive = maxConsecutive;
-  // debugger;
 
   if (schedule) {
     self.schedule = schedule;
@@ -59,7 +58,6 @@ function Schedule(candidates, companies, slots, candidate_slots, maxConsecutive,
           for (var counter = 0; counter < preferences.length; counter++) {
             // Verify current candidate has been given an interview
             var candidate = _.findWhere(candidates, { name: preferences[counter] });
-            // debugger;
            
             if (!candidate) continue;
 
@@ -147,7 +145,6 @@ function isValidAssignment(schedule, companyIndex, slotIndex, candidate, company
 
   var tempList = deepCopyArray(candidate.schedule);
   tempList[slotIndex] = candidate.name;
-  // debugger;
   var highestRepeat = 0;
   var repeatCount = 0;
   for (var i=0; i<tempList.length; i++) {
@@ -158,12 +155,7 @@ function isValidAssignment(schedule, companyIndex, slotIndex, candidate, company
       repeatCount = 0;
     }
   }
-  // debugger;
   if (highestRepeat > maxConsecutive) return false;
-
-  // for (var i=0; i<schedule.length; i++) {
-  //   if (schedule[i][slotIndex] === candidate.name) return false;
-  // }
 
   return true;
 }
@@ -251,7 +243,6 @@ Schedule.prototype.score = function(){
 Schedule.prototype.populateCandidates = function(){
   var self = this;
   var originalCandidates = deepCopyArrayOfObjects(self.candidates);
-  debugger;
 
   var finished = false;
 
@@ -324,7 +315,6 @@ Schedule.prototype.populateCandidates = function(){
               }
             } else {
               if (isValidAssignment(schedule, companyIndex, slotIndex, candidate, company.name, self.maxConsecutive)) {
-                // console.log('candidate -- ', candidate);
                 schedule[companyIndex][slotIndex] = candidate.name;
                 candidate.schedule[slotIndex] = company.name;
                 candidate.count++;

@@ -1,10 +1,13 @@
 <template>
   <div id="app">
     <HelpContainer
-    <img src="./assets/OrrFellowship.png" width="300">
+    <img src="./assets/OrrFellowship.png" width="300"/>
     <h1>Welcome to the SchedulORR</h1>
-    <FileInput item="preferences" @set-data="setData"></FileInput>
-    <FileInput item="candidates" @set-data="setData"></FileInput>
+    <div>
+      <FileInput item="preferences" @set-data="setData"></FileInput>
+      <FileInput item="candidates" @set-data="setData"></FileInput>
+    </div>
+    
     <div>
       <TextInput label="Interviews / Company" item="slots" default_val="8" @set-data="setData"></TextInput>
       <TextInput label="Interviews / Candidate" item="candidate_slots" default_val="4" @set-data="setData"></TextInput>
@@ -19,7 +22,9 @@
         </select>
       </div>
     </div>
-    <button class="tooltip" @click="startWorker" :disabled="validation_msg.length > 0">Let's Go<span class="tooltiptext" v-if="validation_msg.length > 0">{{ this.validation_msg }}</span></button>
+    <div style='margin: 25px;'>
+      <button class="tooltip" @click="startWorker" :disabled="validation_msg.length > 0">Let's Go<span class="tooltiptext" v-if="validation_msg.length > 0">{{ this.validation_msg }}</span></button>
+    </div>
     <a id="help" href="#" @click="toggleHelp">need help?</a>
     <div id="help-overlay" v-if="help" @click="toggleHelp">
       <div id="help-container">
@@ -73,8 +78,6 @@ export default {
       return _.isEmpty(this.validation_msg);
     },
     setData(data) {
-      // console.log(data);
-      // debugger;
       this.data = _.extend(this.data, data);
       this.validate();
     },
@@ -192,4 +195,11 @@ a#help {
 .tooltip:hover .tooltiptext {
     opacity: 1;
 }
+
+/* .card {
+  display: block;
+  padding: 5px;
+  margin: auto;
+  background-color: navy;
+} */
 </style>

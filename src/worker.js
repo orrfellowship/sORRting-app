@@ -6,13 +6,11 @@ self.onmessage = function (msg) {
     case 'load':
       var dec = new TextDecoder();
       var data = JSON.parse(dec.decode(msg.data.aBuf));
-      // debugger;
       main(data)
       break;
     case 'populate':
       var dec = new TextDecoder();
       var data = JSON.parse(dec.decode(msg.data.aBuf));
-      // console.log('new data returned -- ', data);
       populateCandidates(data);
       break;
     default:
@@ -21,10 +19,7 @@ self.onmessage = function (msg) {
 }
 
 function main({iterations, companies, candidates, slots, candidate_slots, maxConsecutive}) {
-  // debugger;
   companies = processCompanyExceptions(companies);
-  // maxConsecutive = 3;
-  debugger;
 
   var maxScore = 0;
   var bestSchedule = null;
@@ -65,7 +60,6 @@ function main({iterations, companies, candidates, slots, candidate_slots, maxCon
     // need these for the company interview schedules (schedule.row) and candidate interview schedules (candidate.schedule)
     // (only names are stored in these spots, not objects)
     var decGradCandidateNames = getDecemberGradNames(candidates);
-    var decGradCompanyNames = getDecemberGradNames(companies);
 
     // need to add tags for output
     candidates = addDecemberGradTag(candidates);
@@ -112,7 +106,6 @@ function main({iterations, companies, candidates, slots, candidate_slots, maxCon
 function populateCandidates({iterations, companies, candidates, slots, candidate_slots, schedule, newCompanies, newCandidates, maxConsecutive}) {
   candidates = newCandidates;
   companies = newCompanies;
-  debugger;
   _.each(candidates, (candidate) => {
     candidate.name = trimName(candidate.name);
   });
@@ -129,7 +122,6 @@ function populateCandidates({iterations, companies, candidates, slots, candidate
   var scoreObject = bestSchedule.score();
 
   bestSchedule.candidates = addDecemberGradTag(bestSchedule.candidates);
-  debugger;
 
   var data = _.map(bestSchedule.schedule, function(row, i) {
     return {
@@ -170,30 +162,6 @@ function calculateMaxScore(company, candidates) {
     if (counter == 8) break;
   }
   return maxScore;
-}
-
-function calculateScore(company, candidates) {
-  var score = 0;
-  for (var i=0; i < candidates.length; i++) {
-    var index = _.indexOf(company.preferences, candidates[i]);
-    if (index >= 0) {
-      // Fixme: might not always want this to be out of 20
-      score += (20 - index);
-    }
-  }
-  return score;
-}
-
-function countCandidateInterviews(schedule, candidates, companies, slots) {
-  _.each(candidates, function(candidate) { candidate.count = 0; });
-
-  for (var i=0; i < companies.length; i++) {
-    for (var j=0; j < slots; j++) {
-      var candidate = _.findWhere(candidates, { name: schedule[i][j] });
-      if (candidate) candidate.count++;
-    }
-  }
-  return candidates;
 }
 
 function determineDecemberGrad(object, trim = true) {
@@ -263,7 +231,6 @@ function getDecemberGradNames(listOfObjects) {
 function processCompanyExceptions(companyList) {
   var finalCompanyList = [];
   for (var i = 0; i < companyList.length; i=i+2) {
-    // debugger;
     var newCompany = {};
     newCompany.name = companyList[i].name;
     newCompany.preferences = companyList[i].preferences;
@@ -275,7 +242,6 @@ function processCompanyExceptions(companyList) {
         exceptionList.push(companyExceptionList[index]);
       }
     }
-    // debugger;
     newCompany.exceptions = exceptionList;
     finalCompanyList.push(newCompany);
   }

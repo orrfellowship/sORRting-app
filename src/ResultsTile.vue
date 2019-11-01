@@ -82,7 +82,6 @@ export default {
       worker.onmessage = function (msg) {
         var dec = new TextDecoder();
         var data = JSON.parse(dec.decode(msg.data.aBuf));
-        debugger;
 
         var csvContent = ["Company", "Top Preferences", "Slot 1", "Slot 2", "Slot 3", "Slot 4", "Slot 5", "Slot 6", "Slot 7", "Slot 8",
           "Max Score Possible", "Company Score", "Percentage of Max", "Adjusted Score"].join(",");
