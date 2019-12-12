@@ -195,11 +195,4 @@ a#help {
 .tooltip:hover .tooltiptext {
     opacity: 1;
 }
-
-/* .card {
-  display: block;
-  padding: 5px;
-  margin: auto;
-  background-color: navy;
-} */
 </style>
