@@ -247,7 +247,7 @@ Schedule.prototype.populateCandidates = function(){
   var finished = false;
 
   var counter = 0;
-  while(!finished && counter < 250) {
+  while(!finished && counter < 10000) {
     ++counter;
     self.candidates = deepCopyArrayOfObjects(originalCandidates);
 
