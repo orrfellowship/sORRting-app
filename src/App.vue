@@ -1,6 +1,5 @@
 <template>
   <div id="app">
-    <HelpContainer
     <img src="./assets/OrrFellowship.png" width="300">
     <h1>Welcome to the Orr Fellowship Scheduler</h1>
     <FileInput item="preferences" @set-data="setData"></FileInput>
