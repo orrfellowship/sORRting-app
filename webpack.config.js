@@ -1,7 +1,8 @@
-const path = require('path')
+const path = require('path');
 const webpack = require('webpack');
 const VueLoaderPlugin = require('vue-loader/lib/plugin');
-const HtmlWebpackPlugin = require('html-webpack-plugin')
+const HtmlWebpackPlugin = require('html-webpack-plugin');
+const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 
 module.exports = {
   mode: 'development',
@@ -50,14 +51,19 @@ module.exports = {
 }
 
 module.exports.plugins = [
-  new webpack.HotModuleReplacementPlugin(),
-  new VueLoaderPlugin(),
-  new HtmlWebpackPlugin({
-    filename: 'index.html',
-    template: 'index.html',
-    inject: true
-  })
+  new VueLoaderPlugin()
 ]
+
+if (process.env.NODE_ENV === 'development') {
+  module.exports.plugins = (module.exports.plugins || []).concat([
+    new webpack.HotModuleReplacementPlugin(),
+    new HtmlWebpackPlugin({
+      filename: 'index.html',
+      template: 'index.html',
+      inject: true
+    })
+  ])
+}
 
 if (process.env.NODE_ENV === 'production') {
   module.exports.mode = 'production'
@@ -74,6 +80,7 @@ if (process.env.NODE_ENV === 'production') {
   module.exports.devtool = '#source-map'
   // http://vue-loader.vuejs.org/en/workflow/production.html
   module.exports.plugins = (module.exports.plugins || []).concat([
+    new CleanWebpackPlugin(),
     new webpack.DefinePlugin({
       'process.env': {
         NODE_ENV: '"production"'
