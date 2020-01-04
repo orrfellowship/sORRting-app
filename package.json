@@ -15,15 +15,20 @@
     "worker-loader": "^1.0.0"
   },
   "devDependencies": {
-    "babel-core": "^6.0.0",
-    "babel-loader": "^6.0.0",
+    "@babel/core": "^7.7.7",
+    "@babel/preset-env": "^7.7.7",
+    "babel-loader": "^8.0.6",
     "babel-preset-env": "^1.5.1",
+    "clean-webpack-plugin": "^3.0.0",
     "cross-env": "^3.0.0",
-    "css-loader": "^3.2.0",
-    "file-loader": "^0.9.0",
-    "vue-loader": "^12.1.0",
+    "css-loader": "^3.4.0",
+    "file-loader": "^5.0.2",
+    "html-webpack-plugin": "^3.2.0",
+    "vue-loader": "^15.8.3",
+    "vue-style-loader": "^4.1.2",
     "vue-template-compiler": "^2.3.3",
-    "webpack": "^2.6.1",
-    "webpack-dev-server": "^2.11.5"
+    "webpack": "^4.41.4",
+    "webpack-cli": "^3.3.10",
+    "webpack-dev-server": "^3.1.11"
   }
 }

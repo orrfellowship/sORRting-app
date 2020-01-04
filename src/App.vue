@@ -1,13 +1,9 @@
 <template>
   <div id="app">
-    <HelpContainer
-    <img src="./assets/OrrFellowship.png" width="300"/>
+    <img src="./assets/OrrFellowship.png" width="300">
     <h1>Welcome to the SchedulORR</h1>
-    <div>
-      <FileInput item="preferences" @set-data="setData"></FileInput>
-      <FileInput item="candidates" @set-data="setData"></FileInput>
-    </div>
-    
+    <FileInput item="preferences" @set-data="setData"></FileInput>
+    <FileInput item="candidates" @set-data="setData"></FileInput>
     <div>
       <TextInput label="Interviews / Company" item="slots" default_val="8" @set-data="setData"></TextInput>
       <TextInput label="Interviews / Candidate" item="candidate_slots" default_val="4" @set-data="setData"></TextInput>
