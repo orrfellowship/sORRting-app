@@ -12,8 +12,6 @@ function Schedule(candidates, companies, slots, candidate_slots, maxConsecutive,
     return;
   }
 
-  // var schedule = [];
-
   var schedule = new Array(companies.length);
   for (var i = 0; i < companies.length; i++) {
     schedule[i] = new Array(slots);
