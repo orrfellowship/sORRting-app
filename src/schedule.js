@@ -12,7 +12,7 @@ function Schedule(candidates, companies, slots, candidate_slots, maxConsecutive,
     return;
   }
 
-  var schedule = [];
+  // var schedule = [];
 
   var schedule = new Array(companies.length);
   for (var i = 0; i < companies.length; i++) {
@@ -58,7 +58,7 @@ function Schedule(candidates, companies, slots, candidate_slots, maxConsecutive,
           for (var counter = 0; counter < preferences.length; counter++) {
             // Verify current candidate has been given an interview
             var candidate = _.findWhere(candidates, { name: preferences[counter] });
-           
+
             if (!candidate) continue;
 
             // Verify current candidate has < max interviews
@@ -66,59 +66,26 @@ function Schedule(candidates, companies, slots, candidate_slots, maxConsecutive,
 
               // Verify only companies that want a december grad get one
               if (candidate.decGrad && company.decGrad) {
-                // Verify current candidate is not already scheduled for that timeslot
-                if (isValidAssignment(schedule, companyIndex, slotIndex, candidate, company.name, self.maxConsecutive)) {
-                  schedule[companyIndex][slotIndex] = candidate.name;
-                  candidate.count++;
-                  candidate.schedule[slotIndex] = company.name;
-                  repeatCheck(candidate);
+                var success = scheduleCandidate(schedule, companyIndex, slotIndex, candidate, company, self.maxConsecutive, counter);
 
-                  // company got one of their top 2 preferences
-                  // (nice-to-have from Karyn)
-                  if (counter < 2) {
-                    company.topPreferences.push(counter+1);
-                  }
-
+                if (success) {
                   finished = false;
                   breakout = true;
                   break;
                 }
               } else if (candidate.decGrad && !company.decGrad) {
                 if (!_.contains(company.exceptions, candidate.name)) continue;
+                var success = scheduleCandidate(schedule, companyIndex, slotIndex, candidate, company, self.maxConsecutive, counter);
 
-                // Is candidate on company's exception list?
-                
-                // Verify current candidate is not already scheduled for that timeslot
-                if (isValidAssignment(schedule, companyIndex, slotIndex, candidate, company.name, self.maxConsecutive)) {
-                  schedule[companyIndex][slotIndex] = candidate.name;
-                  candidate.count++;
-                  candidate.schedule[slotIndex] = company.name;
-                  repeatCheck(candidate);
-
-                  // company got one of their top 2 preferences
-                  // (nice-to-have from Karyn)
-                  if (counter < 2) {
-                    company.topPreferences.push(counter+1);
-                  }
-
+                if (success) {
                   finished = false;
                   breakout = true;
                   break;
                 }
               } else {
-                // Verify current candidate is not already scheduled for that timeslot
-                if (isValidAssignment(schedule, companyIndex, slotIndex, candidate, company.name, self.maxConsecutive)) {
-                  schedule[companyIndex][slotIndex] = candidate.name;
-                  candidate.count++;
-                  candidate.schedule[slotIndex] = company.name;
-                  repeatCheck(candidate);
+                var success = scheduleCandidate(schedule, companyIndex, slotIndex, candidate, company, self.maxConsecutive, counter);
 
-                  // company got one of their top 2 preferences
-                  // (nice-to-have from Karyn)
-                  if (counter < 2) {
-                    company.topPreferences.push(counter+1);
-                  }
-
+                if (success) {
                   finished = false;
                   breakout = true;
                   break;
@@ -136,6 +103,24 @@ function Schedule(candidates, companies, slots, candidate_slots, maxConsecutive,
   }
 
   self.schedule = schedule;
+}
+
+function scheduleCandidate(schedule, companyIndex, slotIndex, candidate, company, maxConsecutive, preferenceOrder) {
+  // Verify current candidate is not already scheduled for that timeslot
+  if (isValidAssignment(schedule, companyIndex, slotIndex, candidate, company.name, maxConsecutive)) {
+    schedule[companyIndex][slotIndex] = candidate.name;
+    candidate.count++;
+    candidate.schedule[slotIndex] = company.name;
+    repeatCheck(candidate);
+
+    // company got one of their top 2 preferences
+    // (nice-to-have from Karyn)
+    if (preferenceOrder < 2) {
+      company.topPreferences.push(preferenceOrder+1);
+    }
+    return true
+  }
+  return false
 }
 
 function isValidAssignment(schedule, companyIndex, slotIndex, candidate, companyName, maxConsecutive) {
@@ -295,22 +280,12 @@ Schedule.prototype.populateCandidates = function(){
               if (!_.contains(company.exceptions, candidate.name)) continue;
 
               // Is candidate on company's exception list?
-              
-              // Verify current candidate is not already scheduled for that timeslot
               if (isValidAssignment(schedule, companyIndex, slotIndex, candidate, company.name, self.maxConsecutive)) {
                 schedule[companyIndex][slotIndex] = candidate.name;
-                candidate.count++;
                 candidate.schedule[slotIndex] = company.name;
+                candidate.count++;
                 repeatCheck(candidate);
-
-                // company got one of their top 2 preferences
-                // (nice-to-have from Karyn)
-                if (counter < 2) {
-                  company.topPreferences.push(counter+1);
-                }
-
-                finished = false;
-                breakout = true;
+                remaining.splice(index, 1);
                 break;
               }
             } else {

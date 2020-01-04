@@ -24,40 +24,18 @@ function main({iterations, companies, candidates, slots, candidate_slots, maxCon
   var maxScore = 0;
   var bestSchedule = null;
 
-  _.each(companies, function(company) {
-    company.maxScore = calculateMaxScore(company, candidates);
-    company.percentageOfMax = 0;
-    company.companyScore = 0;
-    company.adjScore = 0;
-    company.topPreferences = [];
-    company = determineDecemberGrad(company, false);
-  });
-  _.each(candidates, function(candidate) {
-    candidate.repeats = '';
-    candidate.schedule = new Array(slots);
-    candidate = determineDecemberGrad(candidate);
-  })
-
+  companies = initiateCompanies(companies, candidates);
+  candidates = initiateCandidates(candidates, slots);
+  
   for (var i=0; i < iterations; i++) {
-    _.each(candidates, function(candidate) {
-      candidate.count = 0;
-      candidate.repeats = '';
-      candidate.name = trimName(candidate.name);
-      for (var index=0; index<candidate.schedule.length; index++) {
-        candidate.schedule[index] = null;
-      }
-    });
-    _.each(companies, function(company) {
-      company.percentageOfMax = 0;
-      company.companyScore = 0;
-      company.adjScore = 0;
-      company.topPreferences = [];
-    });
+    candidates = resetCandidates(candidates);
+    companies = resetCompanies(companies);
+    
     var schedule = new Schedule(candidates, companies, slots, candidate_slots, maxConsecutive);
 
     var scoreObject = schedule.score();
 
-    // need these for the company interview schedules (schedule.row) and candidate interview schedules (candidate.schedule)
+    // need these for the company interview schedules (schedule.row)
     // (only names are stored in these spots, not objects)
     var decGradCandidateNames = getDecemberGradNames(candidates);
 
@@ -147,6 +125,49 @@ function populateCandidates({iterations, companies, candidates, slots, candidate
   self.postMessage({aTopic: 'populated', aBuf: arrBuf}, [arrBuf]);
 
   close();
+}
+
+function initiateCompanies(companies, candidates) {
+  _.each(companies, function(company) {
+    company.maxScore = calculateMaxScore(company, candidates);
+    company.percentageOfMax = 0;
+    company.companyScore = 0;
+    company.adjScore = 0;
+    company.topPreferences = [];
+    company = determineDecemberGrad(company, false);
+  });
+  return companies;
+}
+
+function resetCompanies(companies) {
+  _.each(companies, function(company) {
+      company.percentageOfMax = 0;
+      company.companyScore = 0;
+      company.adjScore = 0;
+      company.topPreferences = [];
+  });
+  return companies;
+}
+
+function initiateCandidates(candidates, slots) {
+  _.each(candidates, function(candidate) {
+    candidate.repeats = '';
+    candidate.schedule = new Array(slots);
+    candidate = determineDecemberGrad(candidate);
+  })
+  return candidates;
+}
+
+function resetCandidates(candidates) {
+  _.each(candidates, function(candidate) {
+      candidate.count = 0;
+      candidate.repeats = '';
+      candidate.name = trimName(candidate.name);
+      for (var index=0; index<candidate.schedule.length; index++) {
+        candidate.schedule[index] = null;
+      }
+  });
+  return candidates;
 }
 
 function calculateMaxScore(company, candidates) {
