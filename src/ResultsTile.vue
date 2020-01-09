@@ -1,7 +1,7 @@
 <template>
   <div id="tile">
     <div id="content">
-      <span>#{{index + 1}} - Score: {{result.score}} </span>
+      <span>#{{index + 1}} - Score: {{result.score}}, Adjusted {{result.adjScore}} </span>
       <a id="score" target="_blank" :download="file_name" :href="csv"><img src="./assets/arrow.png" width="15"></a>
       <button @click="generateSchedule">Generate Final Schedule</button>
       <a id="final" target="_blank" :download="final_name" :href="populated" v-if="populated"> Download</a>
@@ -27,11 +27,12 @@ export default {
     },
     csv: function () {
       var self = this;
-      var csvContent = ["Company", "Slot 1", "Slot 2", "Slot 3", "Slot 4", "Slot 5", "Slot 6", "Slot 7", "Slot 8", "Max Score Possible", "Company Score"].join(",");
+      var csvContent = ["Company", "Top Preferences", "Slot 1", "Slot 2", "Slot 3", "Slot 4", "Slot 5", "Slot 6", "Slot 7", "Slot 8",
+        "Max Score Possible", "Company Score", "Percentage of Max Possible", "Adjusted Score"].join(",");
       csvContent += "\n";
       var max = 0;
       _.each(self.result.data, function(obj, index){
-        var output = [obj.company, ...obj.interviews, obj.maxScore, obj.score]
+        var output = [obj.company, obj.preferences, ...obj.interviews, obj.maxScore, obj.score, obj.percentageOfMax, obj.adjScore];
 
         output = _.map(output, function(a) {
           return a ? '"' + a + '"' : "";
@@ -44,11 +45,12 @@ export default {
 
       self.$emit('report-max', max);
 
-      csvContent += " ,\n";
-      csvContent += ["Candidate", "Interview Count"].join(",");
+      csvContent += " ,\n\n";
+      csvContent += ["Candidate", "Interview Count", "Slot 1", "Slot 2", "Slot 3", "Slot 4", "Slot 5",
+        "Slot 6", "Slot 7", "Slot 8", "Consecutive Interviews"].join(",");
       csvContent += "\n";
       _.each(self.result.candidates, function(candidate, index){
-        var output = [candidate.name, candidate.count]
+        var output = [candidate.name, candidate.count, ...candidate.schedule, candidate.repeats];
 
         output = _.map(output, function(a) {
           return a ? '"' + a + '"' : "";
@@ -68,17 +70,24 @@ export default {
       var worker = new MyWorker();
 
       var enc = new TextEncoder("utf-8");
-      var arrBuf = enc.encode(JSON.stringify(_.extend(this.input, {schedule: this.result.schedule}))).buffer;
+      var arrBuf = enc.encode(JSON.stringify(_.extend(this.input,
+        {
+          schedule: this.result.schedule,
+          newCompanies: this.result.companies,
+          newCandidates: this.result.candidates,
+          maxConsecutive: this.result.maxConsecutive
+        }))).buffer;
       worker.postMessage({aTopic: 'populate', aBuf: arrBuf}, [arrBuf]);
 
       worker.onmessage = function (msg) {
         var dec = new TextDecoder();
         var data = JSON.parse(dec.decode(msg.data.aBuf));
 
-        var csvContent = ["Company", "Slot 1", "Slot 2", "Slot 3", "Slot 4", "Slot 5", "Slot 6", "Slot 7", "Slot 8", "Max Score Possible", "Company Score"].join(",");
+        var csvContent = ["Company", "Top Preferences", "Slot 1", "Slot 2", "Slot 3", "Slot 4", "Slot 5", "Slot 6", "Slot 7", "Slot 8",
+          "Max Score Possible", "Company Score", "Percentage of Max", "Adjusted Score"].join(",");
         csvContent += "\n";
         _.each(data.data, function(obj, index){
-          var output = [obj.company, ...obj.interviews, obj.maxScore, obj.score]
+          var output = [obj.company, obj.preferences, ...obj.interviews, obj.maxScore, obj.score, obj.percentageOfMax, obj.adjScore];
 
           output = _.map(output, function(a) {
             return a ? '"' + a + '"' : "";
@@ -88,11 +97,13 @@ export default {
           csvContent += index < data.data.length ? dataString+ "\n" : dataString;
         });
 
-        csvContent += " ,\n";
-        csvContent += ["Candidate", "Interview Count"].join(",");
+        csvContent += " ,\n\n";
+        csvContent += ["Candidate", "Interview Count", "Slot 1", "Slot 2", "Slot 3", "Slot 4", "Slot 5",
+          "Slot 6", "Slot 7", "Slot 8", "Consecutive Interviews"].join(",");
         csvContent += "\n";
         _.each(data.candidates, function(candidate, index){
-          var output = [candidate.name, candidate.count]
+
+          var output = [candidate.name, candidate.count, ...candidate.schedule, candidate.repeats];
 
           output = _.map(output, function(a) {
             return a ? '"' + a + '"' : "";
@@ -119,7 +130,7 @@ export default {
 
 #content {
   line-height: 40px;
-  width: 500px;
+  width: 40%;
   margin-left: calc(50% - 250px);
   height: 40px;
   border: 2px solid #223958;
